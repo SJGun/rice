@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘의 급식 - 고등학생 식단 조회</title>
-    <!-- Tailwind CSS CDN -->
+    <title>오늘의 급식 - 학교 식단 조회</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Pretendard & Tossface Web Fonts -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css" />
     <script>
@@ -19,14 +17,8 @@
                     },
                     colors: {
                         brand: {
-                            50: '#EFF6FF',
-                            100: '#DBEAFE',
-                            200: '#BFDBFE',
-                            300: '#93C5FD',
-                            400: '#60A5FA',
-                            500: '#3B82F6',
-                            600: '#2563EB',
-                            700: '#1D4ED8',
+                            50: '#EFF6FF', 100: '#DBEAFE', 200: '#BFDBFE', 300: '#93C5FD',
+                            400: '#60A5FA', 500: '#3B82F6', 600: '#2563EB', 700: '#1D4ED8',
                         }
                     }
                 }
@@ -34,30 +26,20 @@
         }
     </script>
     <style>
-        /* 토스이모지 전용 클래스 및 부드러운 스크롤바 스타일 */
-        .tossface {
-            font-family: 'Tossface', sans-serif;
-            font-style: normal;
-            font-weight: normal;
-            line-height: 1;
-            display: inline-block;
-            vertical-align: middle;
+        .tossface { font-family: 'Tossface', sans-serif; font-style: normal; font-weight: normal; line-height: 1; display: inline-block; vertical-align: middle; }
+        .fade-in { animation: fadeIn 0.25s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+        @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+        /* 키보드 포커스 가시성 */
+        button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #2563EB; outline-offset: 2px; }
+        body.modal-open { overflow: hidden; }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in, .skeleton, .animate-pulse { animation: none !important; }
+            * { transition-duration: 0.01ms !important; }
         }
-        /* 가로 스크롤 영역 스크롤바 숨김 */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        /* 부드러운 전환 애니메이션 */
-        .fade-in {
-            animation: fadeIn 0.25s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media print {
+            header, #upcomingFavSection, #quickDateTabsWrap, #mealTypeTabsContainer, .fav-star-btn, footer { display: none !important; }
         }
     </style>
 </head>
@@ -65,7 +47,7 @@
 
     <!-- 상단 헤더 -->
     <header class="bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md sticky top-0 z-30">
-        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-2">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 min-w-0">
                 <div class="bg-white/20 backdrop-blur-sm p-2 rounded-2xl shadow-inner shrink-0">
                     <span class="tossface text-2xl">🍱</span>
@@ -73,34 +55,30 @@
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <h1 class="text-lg sm:text-xl font-bold tracking-tight truncate">오늘의 학교 급식</h1>
-                        <span id="schoolKindBadge" class="text-[11px] font-semibold bg-white text-brand-600 px-2 py-0.5 rounded-full shrink-0">NEIS 연동</span>
+                        <span id="schoolKindBadge" class="text-xs font-semibold bg-white text-brand-600 px-2 py-0.5 rounded-full shrink-0">NEIS 연동</span>
                     </div>
                     <p id="headerSchoolSubtitle" class="text-xs text-brand-100 mt-0.5 truncate">학교를 검색하여 실제 급식을 조회하세요</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <!-- 최애 메뉴 검색/즐겨찾기 버튼 -->
-                <button id="openFavMenuModalBtn" title="좋아하는 메뉴 검색 및 즐겨찾기" class="flex items-center gap-1.5 bg-white text-brand-700 hover:bg-brand-50 active:scale-95 transition-all px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm">
+                <button id="openFavMenuModalBtn" aria-label="최애 메뉴 검색 및 즐겨찾기" class="flex items-center gap-1.5 bg-white text-brand-700 hover:bg-brand-50 active:scale-95 transition-all px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm">
                     <span class="tossface text-base">⭐</span>
-                    <span>최애 메뉴</span>
-                    <span id="favMenuCountBadge" class="hidden bg-brand-600 text-white font-bold text-[11px] px-1.5 py-0.2 rounded-full">0</span>
+                    <span class="hidden sm:inline">최애 메뉴</span>
+                    <span id="favMenuCountBadge" class="hidden bg-brand-600 text-white font-bold text-xs px-1.5 rounded-full">0</span>
                 </button>
-
-                <!-- 내 알레르기 설정 버튼 -->
-                <button id="openAllergyModalBtn" class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 active:scale-95 transition-all px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-white/25 shadow-sm">
+                <button id="openAllergyModalBtn" aria-label="내 알레르기 설정" class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 active:scale-95 transition-all px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-white/25 shadow-sm">
                     <span class="tossface text-base">🛡️</span>
-                    <span>내 알레르기</span>
-                    <span id="myAllergyCountBadge" class="hidden bg-amber-400 text-slate-900 font-bold text-[11px] px-1.5 py-0.2 rounded-full ml-0.5">0</span>
+                    <span class="hidden sm:inline">내 알레르기</span>
+                    <span id="myAllergyCountBadge" class="hidden bg-amber-400 text-slate-900 font-bold text-xs px-1.5 rounded-full">0</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- 메인 컨테이너 -->
-    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-5 space-y-5">
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-5 space-y-4">
 
-        <!-- 현재 선택된 학교 배너 카드 -->
+        <!-- 학교 배너 -->
         <section class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-brand-100 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
                 <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center shrink-0">
@@ -109,79 +87,60 @@
                 <div class="min-w-0">
                     <div class="flex items-center gap-1.5 flex-wrap">
                         <h2 id="selectedSchoolName" class="text-base sm:text-lg font-extrabold text-slate-800 truncate">샘플 모드 (청운고등학교)</h2>
-                        <span id="selectedSchoolOffice" class="text-[11px] font-semibold bg-brand-50 text-brand-600 px-2 py-0.5 rounded-lg shrink-0">데모 식단</span>
+                        <span id="selectedSchoolOffice" class="text-xs font-semibold bg-brand-50 text-brand-600 px-2 py-0.5 rounded-lg shrink-0">데모 식단</span>
                     </div>
-                    <p id="selectedSchoolAddress" class="text-xs text-slate-500 mt-0.5 truncate">우측 '학교 변경 / 검색' 버튼을 눌러 전국 학교를 검색하세요.</p>
+                    <p id="selectedSchoolAddress" class="text-xs text-slate-500 mt-0.5 truncate">우측 버튼을 눌러 우리 학교를 검색하세요.</p>
                 </div>
             </div>
             <button id="openSchoolSearchBtn" class="shrink-0 flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl shadow-sm active:scale-95 transition-all">
                 <span class="tossface text-base">🔍</span>
-                <span>학교 변경 / 검색</span>
+                <span>학교 검색</span>
             </button>
         </section>
 
-        <!-- 다가오는 최애(즐겨찾기) 메뉴 알리미 카드 -->
-        <section id="upcomingFavSection" class="bg-gradient-to-r from-amber-50 via-yellow-50/80 to-white rounded-3xl p-4 sm:p-5 shadow-sm border border-amber-200/80">
-            <div class="flex items-center justify-between gap-2 mb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="tossface text-xl">🌟</span>
-                    <h2 class="text-sm sm:text-base font-extrabold text-slate-800">다가오는 최애 메뉴 알리미</h2>
-                </div>
-                <button id="manageFavInlineBtn" class="text-xs font-bold text-amber-700 bg-amber-100/80 hover:bg-amber-200/80 px-2.5 py-1 rounded-xl transition-colors">
-                    메뉴 검색 · 관리
-                </button>
-            </div>
-            <div id="upcomingFavContent">
-                <!-- JavaScript로 즐겨찾기 메뉴 일정 렌더링 -->
-            </div>
-        </section>
-
-        <!-- 날짜 탐색 및 선택 카드 -->
+        <!-- 날짜 탐색 -->
         <section class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-brand-100">
-            <!-- 상단 날짜 컨트롤러 (이전/날짜피커/다음) -->
-            <div class="flex items-center justify-between gap-2 mb-4">
-                <button id="prevDayBtn" aria-label="이전 날짜" class="p-2.5 sm:p-3 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-600 active:scale-95 transition-all flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                    </svg>
+            <div class="flex items-center justify-between gap-2">
+                <button id="prevDayBtn" aria-label="이전 급식일" class="p-2.5 sm:p-3 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-600 active:scale-95 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                 </button>
 
                 <div class="flex-1 flex flex-col items-center">
-                    <div class="relative inline-flex items-center justify-center">
+                    <label class="relative inline-flex items-center justify-center cursor-pointer">
                         <input type="date" id="datePicker" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10" aria-label="날짜 직접 선택">
-                        <div class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 hover:bg-brand-50/70 border border-slate-200 transition-colors cursor-pointer">
+                        <span class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 hover:bg-brand-50/70 border border-slate-200 transition-colors">
                             <span class="tossface text-lg">📅</span>
-                            <span id="currentDateDisplay" class="text-base sm:text-lg font-bold text-slate-800 tracking-tight">2026년 11월 16일 (월)</span>
-                            <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                        </div>
-                    </div>
-                    <span id="dateRelativeBadge" class="text-xs font-medium text-brand-600 mt-1">오늘의 급식 식단</span>
+                            <span id="currentDateDisplay" class="text-base sm:text-lg font-bold text-slate-800 tracking-tight">-</span>
+                            <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                        </span>
+                    </label>
+                    <span id="dateRelativeBadge" class="text-xs font-medium text-brand-600 mt-1" aria-live="polite">&nbsp;</span>
                 </div>
 
-                <button id="nextDayBtn" aria-label="다음 날짜" class="p-2.5 sm:p-3 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-600 active:scale-95 transition-all flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                    </svg>
+                <button id="nextDayBtn" aria-label="다음 급식일" class="p-2.5 sm:p-3 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-600 active:scale-95 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                 </button>
             </div>
 
-            <!-- 주간 날짜 빠른 선택 탭 (오늘 기준 5일치) -->
-            <div class="pt-3 border-t border-slate-100">
-                <div class="flex items-center justify-between mb-2 px-1">
-                    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                        <span class="tossface text-sm">⚡</span> 주간 급식 빠른 선택 (오늘부터 5일간)
-                    </span>
-                    <button id="resetToTodayBtn" class="text-xs font-semibold text-brand-600 hover:underline">오늘로 이동</button>
+            <!-- 주간(월~금) 탭 -->
+            <div id="quickDateTabsWrap" class="mt-4 pt-3 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-1">
+                        <button id="prevWeekBtn" aria-label="이전 주" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 active:scale-90 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                        </button>
+                        <span id="weekRangeLabel" class="text-xs font-semibold text-slate-600 min-w-[96px] text-center">-</span>
+                        <button id="nextWeekBtn" aria-label="다음 주" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 active:scale-90 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                        </button>
+                    </div>
+                    <button id="resetToTodayBtn" class="text-xs font-bold text-brand-600 hover:underline px-1">오늘로 이동</button>
                 </div>
-                <div id="quickDateTabs" class="grid grid-cols-5 gap-1.5 sm:gap-2.5">
-                    <!-- JavaScript로 5일치 버튼 동적 생성 -->
-                </div>
+                <div id="quickDateTabs" class="grid grid-cols-5 gap-1.5 sm:gap-2.5"></div>
             </div>
         </section>
 
-        <!-- 내 알레르기 활성 안내 배너 (설정된 경우에만 표시) -->
+        <!-- 알레르기 활성 배너 -->
         <div id="activeAllergyBanner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 shadow-sm">
             <div class="flex items-center gap-2.5 text-xs sm:text-sm text-amber-900">
                 <span class="tossface text-xl shrink-0">⚠️</span>
@@ -190,242 +149,176 @@
                     <span id="activeAllergyListText" class="text-amber-800 font-medium"></span>
                 </div>
             </div>
-            <button id="editAllergyInlineBtn" class="text-xs font-bold text-amber-800 bg-amber-200/70 hover:bg-amber-200 px-2.5 py-1.5 rounded-xl shrink-0 transition-colors">
-                변경
-            </button>
+            <button id="editAllergyInlineBtn" class="text-xs font-bold text-amber-800 bg-amber-200/70 hover:bg-amber-200 px-2.5 py-1.5 rounded-xl shrink-0 transition-colors">변경</button>
         </div>
 
-        <!-- 끼니 탭 전환 영역 (전체 / 조식 / 중식 / 석식) -->
-        <div id="mealTypeTabsContainer" class="hidden bg-white p-1.5 rounded-2xl border border-brand-100 shadow-2xs flex items-center gap-1.5">
-            <!-- JavaScript로 동적 생성 -->
-        </div>
+        <!-- 끼니 탭 -->
+        <div id="mealTypeTabsContainer" class="hidden bg-white p-1.5 rounded-2xl border border-brand-100 shadow-sm flex items-center gap-1.5"></div>
 
-        <!-- 급식 메뉴 출력 영역 (조식 / 중식 / 석식 카드) -->
-        <section id="mealContainer" class="space-y-4">
-            <!-- JavaScript로 급식 카드가 렌더링됩니다 -->
+        <!-- 급식 카드 -->
+        <section id="mealContainer" class="space-y-4" aria-live="polite"></section>
+
+        <!-- 최애 메뉴 알리미 (식단 아래로 이동: 핵심 정보인 식단이 먼저 보이도록) -->
+        <section id="upcomingFavSection" class="bg-gradient-to-r from-amber-50 via-yellow-50/80 to-white rounded-3xl p-4 sm:p-5 shadow-sm border border-amber-200/80">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="tossface text-xl">🌟</span>
+                    <h2 class="text-sm sm:text-base font-extrabold text-slate-800">다가오는 최애 메뉴</h2>
+                </div>
+                <button id="manageFavInlineBtn" class="text-xs font-bold text-amber-800 bg-amber-100/80 hover:bg-amber-200/80 px-2.5 py-1.5 rounded-xl transition-colors">검색 · 관리</button>
+            </div>
+            <div id="upcomingFavContent"></div>
         </section>
 
-        <!-- 알레르기 유발 식품 번호 안내표 (아코디언/카드 형태) -->
+        <!-- 알레르기 번호 안내 (기본 접힘) -->
         <section class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200/80">
-            <button id="toggleLegendBtn" class="w-full flex items-center justify-between text-left">
+            <button id="toggleLegendBtn" aria-expanded="false" aria-controls="allergyLegendGrid" class="w-full flex items-center justify-between text-left">
                 <div class="flex items-center gap-2">
                     <span class="tossface text-lg">📋</span>
                     <h2 class="text-sm sm:text-base font-bold text-slate-800">알레르기 유발 식품 번호 안내 (1~19번)</h2>
                 </div>
-                <span id="legendChevron" class="text-slate-400 transition-transform duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
+                <span id="legendChevron" class="text-slate-400 transition-transform duration-200" style="transform: rotate(-90deg)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
                 </span>
             </button>
-            <div id="allergyLegendGrid" class="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <!-- JavaScript로 1~19번 알레르기 아이콘 목록 생성 -->
-            </div>
+            <div id="allergyLegendGrid" class="hidden mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div>
         </section>
-
     </main>
 
-    <!-- 하단 푸터 -->
-    <footer class="max-w-3xl w-full mx-auto px-4 py-6 text-center text-xs text-slate-400">
+    <footer class="max-w-3xl w-full mx-auto px-4 py-6 text-center text-xs text-slate-500">
         <p>데이터 출처: 나이스(NEIS) 교육정보 개방 포털 Open API</p>
-        <p class="mt-1">Tossface 이모지가 적용된 전국 초·중·고등학교 맞춤형 급식 조회 서비스</p>
+        <p class="mt-1">알레르기 정보는 학교 입력 기준이며, 중요한 경우 학교 영양(교)사에게 확인하세요.</p>
     </footer>
 
     <!-- 1. 학교 검색 모달 -->
-    <div id="schoolSearchModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden fade-in">
-            <!-- 모달 헤더 -->
+    <div id="schoolSearchModal" role="dialog" aria-modal="true" aria-label="학교 검색" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center sm:p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden fade-in">
             <div class="px-5 py-4 bg-brand-600 text-white flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="tossface text-xl">🏫</span>
                     <div>
                         <h3 class="font-bold text-base sm:text-lg">전국 학교 검색</h3>
-                        <p class="text-xs text-brand-100">나이스(NEIS) 등록 초·중·고등학교를 검색하세요.</p>
+                        <p class="text-xs text-brand-100">나이스(NEIS) 등록 초·중·고등학교</p>
                     </div>
                 </div>
-                <button id="closeSchoolSearchBtn" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <button data-close-modal aria-label="닫기" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
 
-            <!-- 검색 입력 폼 -->
             <div class="p-4 bg-slate-50 border-b border-slate-100 space-y-2.5">
                 <form id="schoolSearchForm" class="flex gap-2">
-                    <input type="text" id="schoolSearchInput" placeholder="예: 서울고등학교, 경기고, 광주제일고" class="flex-1 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all" autocomplete="off">
-                    <button type="submit" class="px-5 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-sm active:scale-95 transition-all shrink-0">
-                        검색
-                    </button>
+                    <input type="search" id="schoolSearchInput" aria-label="학교명" placeholder="예: 서울고등학교, 광주제일고" class="flex-1 min-w-0 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-base font-medium focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all" autocomplete="off" enterkeyhint="search">
+                    <button type="submit" class="px-5 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-sm active:scale-95 transition-all shrink-0">검색</button>
                 </form>
-                <!-- 추천 검색어 칩 -->
-                <div class="flex items-center gap-1.5 flex-wrap text-xs">
-                    <span class="text-slate-400 font-medium">추천:</span>
-                    <button type="button" class="quick-school-chip px-2.5 py-1 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-query="서울고등학교">서울고등학교</button>
-                    <button type="button" class="quick-school-chip px-2.5 py-1 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-query="경기고등학교">경기고등학교</button>
-                    <button type="button" class="quick-school-chip px-2.5 py-1 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-query="광주제일고등학교">광주제일고등학교</button>
-                </div>
             </div>
 
-            <!-- 검색 결과 목록 -->
-            <div id="schoolSearchResults" class="p-4 overflow-y-auto flex-1 space-y-2 min-h-[220px]">
-                <div class="text-center py-10 text-slate-400 text-xs sm:text-sm">
-                    <span class="tossface text-3xl block mb-2">🔎</span>
-                    학교명을 입력하고 검색 버튼을 눌러주세요.
-                </div>
-            </div>
+            <div id="schoolSearchResults" class="p-4 overflow-y-auto flex-1 space-y-2 min-h-[220px]"></div>
 
-            <!-- 모달 푸터 (샘플 모드로 전환 버튼 포함) -->
             <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
-                <span class="text-[11px] text-slate-400">API 호출 제한 시 샘플 모드를 이용할 수 있습니다.</span>
-                <button id="switchToDemoModeBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors shrink-0">
-                    샘플(데모) 모드 사용
-                </button>
+                <span class="text-xs text-slate-500">조회가 안 되면 샘플 모드를 이용하세요.</span>
+                <button id="switchToDemoModeBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors shrink-0">샘플 모드</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. 내 알레르기 선택 모달 -->
-    <div id="allergyModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden fade-in">
-            <!-- 모달 헤더 -->
+    <!-- 2. 알레르기 모달 -->
+    <div id="allergyModal" role="dialog" aria-modal="true" aria-label="내 알레르기 설정" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center sm:p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden fade-in">
             <div class="px-5 py-4 bg-brand-600 text-white flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="tossface text-xl">🛡️</span>
                     <div>
-                        <h3 class="font-bold text-base sm:text-lg">내 알레르기 맞춤 설정</h3>
-                        <p class="text-xs text-brand-100">해당하는 항목을 선택하면 위험 메뉴에 경고가 표시됩니다.</p>
+                        <h3 class="font-bold text-base sm:text-lg">내 알레르기 설정</h3>
+                        <p class="text-xs text-brand-100">선택하면 해당 메뉴에 경고가 표시돼요.</p>
                     </div>
                 </div>
-                <button id="closeAllergyModalBtn" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <button data-close-modal aria-label="닫기" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
-
-            <!-- 모달 본문 (체크박스 그리드) -->
             <div class="p-5 overflow-y-auto flex-1">
-                <div id="modalAllergyCheckboxes" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                    <!-- JavaScript로 1~19번 선택 버튼 생성 -->
-                </div>
+                <div id="modalAllergyCheckboxes" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
             </div>
-
-            <!-- 모달 푸터 -->
             <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
-                <button id="clearAllergyBtn" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-200/70 transition-colors">
-                    전체 해제
-                </button>
-                <button id="saveAllergyBtn" class="px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-sm active:scale-95 transition-all">
-                    적용하기
-                </button>
+                <button id="clearAllergyBtn" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-200/70 transition-colors">전체 해제</button>
+                <button id="saveAllergyBtn" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-sm active:scale-95 transition-all">적용하기</button>
             </div>
         </div>
     </div>
 
-    <!-- 3. 최애 메뉴 검색 & 즐겨찾기 모달 -->
-    <div id="favMenuModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden fade-in">
-            <!-- 모달 헤더 -->
+    <!-- 3. 최애 메뉴 모달 -->
+    <div id="favMenuModal" role="dialog" aria-modal="true" aria-label="최애 메뉴 검색" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center sm:p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden fade-in">
             <div class="px-5 py-4 bg-gradient-to-r from-brand-600 to-brand-500 text-white flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="tossface text-xl">⭐</span>
                     <div>
                         <h3 class="font-bold text-base sm:text-lg">최애 메뉴 검색 & 즐겨찾기</h3>
-                        <p class="text-xs text-brand-100">좋아하는 메뉴가 이번 달 언제 나오는지 바로 찾아보세요!</p>
+                        <p class="text-xs text-brand-100">좋아하는 메뉴가 언제 나오는지 찾아보세요!</p>
                     </div>
                 </div>
-                <button id="closeFavMenuModalBtn" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <button data-close-modal aria-label="닫기" class="p-1.5 rounded-xl bg-white/15 hover:bg-white/25 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
 
-            <!-- 메뉴 검색 바 & 추천 키워드 -->
             <div class="p-4 bg-slate-50 border-b border-slate-100 space-y-2.5">
                 <form id="favMenuSearchForm" class="flex gap-2">
-                    <input type="text" id="favMenuSearchInput" placeholder="예: 돈까스, 치킨, 스파게티, 김치찌개, 불고기" class="flex-1 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all" autocomplete="off">
-                    <button type="submit" class="px-5 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-sm active:scale-95 transition-all shrink-0">
-                        날짜 찾기
-                    </button>
+                    <input type="search" id="favMenuSearchInput" aria-label="메뉴 이름" placeholder="예: 돈까스, 치킨, 스파게티" class="flex-1 min-w-0 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-base font-medium focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all" autocomplete="off" enterkeyhint="search">
+                    <button type="submit" class="px-5 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-sm active:scale-95 transition-all shrink-0">날짜 찾기</button>
                 </form>
                 <div class="flex items-center gap-1.5 flex-wrap text-xs">
-                    <span class="text-slate-400 font-medium">인기:</span>
-                    <button type="button" class="quick-menu-chip px-2.5 py-1 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="돈까스">🍛 돈까스</button>
-                    <button type="button" class="quick-menu-chip px-2.5 py-1 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="치킨">🍗 치킨</button>
-                    <button type="button" class="quick-menu-chip px-2.5 py-1 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="스파게티">🍝 스파게티</button>
-                    <button type="button" class="quick-menu-chip px-2.5 py-1 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="제육">🥩 제육</button>
+                    <span class="text-slate-500 font-medium">인기:</span>
+                    <button type="button" class="quick-menu-chip px-2.5 py-1.5 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="돈까스">🍛 돈까스</button>
+                    <button type="button" class="quick-menu-chip px-2.5 py-1.5 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="치킨">🍗 치킨</button>
+                    <button type="button" class="quick-menu-chip px-2.5 py-1.5 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="스파게티">🍝 스파게티</button>
+                    <button type="button" class="quick-menu-chip px-2.5 py-1.5 rounded-xl bg-white hover:bg-brand-50 text-slate-600 hover:text-brand-600 border border-slate-200 font-medium transition-colors" data-menu="제육">🥩 제육</button>
                 </div>
             </div>
 
-            <!-- 내 즐겨찾기 목록 칩 영역 -->
             <div class="px-4 py-3 bg-amber-50/60 border-b border-amber-100">
                 <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-xs font-bold text-amber-900 flex items-center gap-1">
-                        <span class="tossface text-sm">📌</span> 내 즐겨찾기 키워드 (클릭 시 일정 조회)
-                    </span>
-                    <span id="favListCountText" class="text-[11px] font-semibold text-amber-700">0개 등록됨</span>
+                    <span class="text-xs font-bold text-amber-900 flex items-center gap-1"><span class="tossface text-sm">📌</span> 내 즐겨찾기 (누르면 일정 조회)</span>
+                    <span id="favListCountText" class="text-xs font-semibold text-amber-800">0개</span>
                 </div>
-                <div id="favKeywordsChipList" class="flex items-center gap-1.5 flex-wrap">
-                    <!-- JavaScript로 즐겨찾기 칩 동적 렌더링 -->
-                </div>
+                <div id="favKeywordsChipList" class="flex items-center gap-1.5 flex-wrap"></div>
             </div>
 
-            <!-- 메뉴 출현 날짜 검색 결과 목록 -->
-            <div id="favMenuSearchResults" class="p-4 overflow-y-auto flex-1 space-y-2.5 min-h-[220px]">
-                <div class="text-center py-9 text-slate-400 text-xs sm:text-sm">
-                    <span class="tossface text-3xl block mb-2">🔍</span>
-                    메뉴 이름을 검색하거나 즐겨찾기 키워드를 눌러보세요.<br>
-                    <span class="text-xs text-slate-400 mt-1 block">선택한 날짜를 클릭하면 해당 날의 전체 식단표로 이동합니다.</span>
-                </div>
-            </div>
+            <div id="favMenuSearchResults" class="p-4 overflow-y-auto flex-1 space-y-2.5 min-h-[200px]"></div>
         </div>
     </div>
 
-    <!-- 토스트 메시지 알림 (alert 대체용) -->
-    <div id="toastMessage" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-2">
+    <!-- 토스트 -->
+    <div id="toastMessage" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] pointer-events-none opacity-0 transition-all duration-300 translate-y-2">
         <div class="bg-slate-800/95 text-white px-4 py-2.5 rounded-2xl shadow-lg text-xs sm:text-sm font-medium flex items-center gap-2 backdrop-blur-sm">
             <span class="tossface text-base">✅</span>
-            <span id="toastText">설정이 저장되었습니다.</span>
+            <span id="toastText"></span>
         </div>
     </div>
 
     <script>
-        // =========================================================================
-        // 🔑 NEIS Open API 인증키 설정 (여기에 발급받은 인증키를 입력하세요)
-        // 비워두면('') 인증키 없는 기본 공개 API 모드로 동작합니다.
-        // =========================================================================
+        // 🔑 NEIS Open API 인증키 (비우면 인증키 없는 기본 모드로 동작)
         const NEIS_API_KEY = '8a41bd493a1a427aa264ffe7492b8853';
 
-        /**
-         * 1. 알레르기 유발 식품 표준 코드 (1~19번) 및 토스이모지 매핑
-         */
         const ALLERGY_INFO = {
-            1:  { name: '난류',     emoji: '🥚' },
-            2:  { name: '우유',     emoji: '🥛' },
-            3:  { name: '메밀',     emoji: '🍜' },
-            4:  { name: '땅콩',     emoji: '🥜' },
-            5:  { name: '대두',     emoji: '🫘' },
-            6:  { name: '밀',       emoji: '🌾' },
-            7:  { name: '고등어',   emoji: '🐟' },
-            8:  { name: '게',       emoji: '🦀' },
-            9:  { name: '새우',     emoji: '🦐' },
-            10: { name: '돼지고기', emoji: '🐷' },
-            11: { name: '복숭아',   emoji: '🍑' },
-            12: { name: '토마토',   emoji: '🍅' },
-            13: { name: '아황산류', emoji: '🧪' },
-            14: { name: '호두',     emoji: '🌰' },
-            15: { name: '닭고기',   emoji: '🐔' },
-            16: { name: '쇠고기',   emoji: '🐮' },
-            17: { name: '오징어',   emoji: '🦑' },
-            18: { name: '조개류',   emoji: '🐚' },
+            1:  { name: '난류',     emoji: '🥚' }, 2:  { name: '우유',     emoji: '🥛' },
+            3:  { name: '메밀',     emoji: '🍜' }, 4:  { name: '땅콩',     emoji: '🥜' },
+            5:  { name: '대두',     emoji: '🫘' }, 6:  { name: '밀',       emoji: '🌾' },
+            7:  { name: '고등어',   emoji: '🐟' }, 8:  { name: '게',       emoji: '🦀' },
+            9:  { name: '새우',     emoji: '🦐' }, 10: { name: '돼지고기', emoji: '🐷' },
+            11: { name: '복숭아',   emoji: '🍑' }, 12: { name: '토마토',   emoji: '🍅' },
+            13: { name: '아황산류', emoji: '🧪' }, 14: { name: '호두',     emoji: '🌰' },
+            15: { name: '닭고기',   emoji: '🐔' }, 16: { name: '쇠고기',   emoji: '🐮' },
+            17: { name: '오징어',   emoji: '🦑' }, 18: { name: '조개류',   emoji: '🐚' },
             19: { name: '잣',       emoji: '🌲' }
         };
 
-        /**
-         * 2. 메뉴 키워드 기반 토스이모지 자동 매핑 함수
-         */
+        // XSS 방지: API/사용자 입력 문자열은 반드시 이스케이프 후 innerHTML에 삽입
+        function esc(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         function getFoodEmoji(menuName) {
             const name = menuName.replace(/\s+/g, '');
             if (/우유|요구르트|요거트|라떼|밀크/.test(name)) return '🥛';
@@ -448,655 +341,416 @@
             return '🍽️';
         }
 
-        /**
-         * 3. NEIS 메뉴 문자열 파서
-         */
         function parseNeisDishString(ddishNm) {
             if (!ddishNm) return [];
             const lines = ddishNm.split(/<br\s*\/?>/i).map(s => s.trim()).filter(Boolean);
-
             return lines.map(line => {
                 const allergyMatches = [];
                 const regex = /\(([0-9.\s]+)\)/g;
                 let match;
                 while ((match = regex.exec(line)) !== null) {
-                    const nums = match[1].split('.')
-                        .map(n => parseInt(n.trim(), 10))
-                        .filter(n => !isNaN(n) && ALLERGY_INFO[n]);
+                    const nums = match[1].split('.').map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n) && ALLERGY_INFO[n]);
                     allergyMatches.push(...nums);
                 }
-
                 const uniqueAllergies = Array.from(new Set(allergyMatches)).sort((a, b) => a - b);
-                const cleanName = line
-                    .replace(/\([0-9.\s]+\)/g, '')
-                    .replace(/[*#@]+$/g, '')
-                    .trim();
-
-                return {
-                    name: cleanName || line,
-                    emoji: getFoodEmoji(cleanName || line),
-                    allergies: uniqueAllergies
-                };
+                const cleanName = line.replace(/\([0-9.\s]+\)/g, '').replace(/[*#@]+$/g, '').trim();
+                return { name: cleanName || line, emoji: getFoodEmoji(cleanName || line), allergies: uniqueAllergies };
             });
         }
 
-        /**
-         * 4. 고등학생 맞춤형 5일치 급식 샘플 데이터
-         */
         const RAW_SAMPLE_MENUS = [
-            {
-                dayLabel: '1일차',
-                meals: [
-                    {
-                        type: '중식',
-                        emoji: '☀️',
-                        calories: '895 kcal',
-                        nutrition: '탄수화물 124g · 단백질 38g · 지방 26g',
-                        items: [
-                            { name: '차수수밥', emoji: '🍚', allergies: [] },
-                            { name: '얼큰순대국밥', emoji: '🍲', allergies: [5, 6, 10, 16] },
-                            { name: '수제등심돈까스 & 브라운소스', emoji: '🍛', allergies: [1, 2, 5, 6, 10, 12] },
-                            { name: '부추양파무침', emoji: '🥗', allergies: [5, 6] },
-                            { name: '깍두기', emoji: '🥬', allergies: [9] },
-                            { name: '요구르트', emoji: '🧃', allergies: [2] }
-                        ]
-                    },
-                    {
-                        type: '석식',
-                        emoji: '🌙',
-                        calories: '840 kcal',
-                        nutrition: '탄수화물 118g · 단백질 35g · 지방 24g',
-                        items: [
-                            { name: '스팸마요덮밥', emoji: '🍱', allergies: [1, 2, 5, 6, 10, 15] },
-                            { name: '가쓰오우동국물', emoji: '🍜', allergies: [5, 6, 7] },
-                            { name: '타코야끼(2알)', emoji: '🐙', allergies: [1, 5, 6, 17] },
-                            { name: '배추김치', emoji: '🥬', allergies: [9] },
-                            { name: '청포도주스', emoji: '🍇', allergies: [13] }
-                        ]
-                    }
-                ]
-            },
-            {
-                dayLabel: '2일차',
-                meals: [
-                    {
-                        type: '중식',
-                        emoji: '☀️',
-                        calories: '910 kcal',
-                        nutrition: '탄수화물 128g · 단백질 41g · 지방 25g',
-                        items: [
-                            { name: '현미찹쌀밥', emoji: '🍚', allergies: [] },
-                            { name: '차돌된장찌개', emoji: '🥘', allergies: [5, 6, 16, 18] },
-                            { name: '간장찜닭 & 당면사리', emoji: '🍗', allergies: [5, 6, 13, 15] },
-                            { name: '계란말이', emoji: '🍳', allergies: [1, 2] },
-                            { name: '총각김치', emoji: '🥬', allergies: [9] },
-                            { name: '방울토마토', emoji: '🍅', allergies: [12] }
-                        ]
-                    },
-                    {
-                        type: '석식',
-                        emoji: '🌙',
-                        calories: '865 kcal',
-                        nutrition: '탄수화물 120g · 단백질 36g · 지방 26g',
-                        items: [
-                            { name: '김치볶음밥 & 계란후라이', emoji: '🍳', allergies: [1, 5, 6, 9, 10] },
-                            { name: '유부미소장국', emoji: '🥣', allergies: [5, 6] },
-                            { name: '치즈스틱', emoji: '🧀', allergies: [1, 2, 5, 6] },
-                            { name: '단무지무침', emoji: '💛', allergies: [] },
-                            { name: '복숭아아이스티', emoji: '🍑', allergies: [11] }
-                        ]
-                    }
-                ]
-            },
-            {
-                dayLabel: '3일차',
-                meals: [
-                    {
-                        type: '중식',
-                        emoji: '☀️',
-                        calories: '935 kcal',
-                        nutrition: '탄수화물 132g · 단백질 39g · 지방 28g',
-                        items: [
-                            { name: '로제스파게티(주식으로 제공)', emoji: '🍝', allergies: [1, 2, 5, 6, 9, 10, 12] },
-                            { name: '양송이크림스프', emoji: '🥣', allergies: [2, 5, 6, 16] },
-                            { name: '마늘바게트', emoji: '🥖', allergies: [2, 5, 6] },
-                            { name: '케이준치킨샐러드', emoji: '🥗', allergies: [1, 4, 5, 6, 15] },
-                            { name: '수제오이피클', emoji: '🥒', allergies: [] },
-                            { name: '초코우유', emoji: '🥛', allergies: [2, 5] }
-                        ]
-                    },
-                    {
-                        type: '석식',
-                        emoji: '🌙',
-                        calories: '850 kcal',
-                        nutrition: '탄수화물 121g · 단백질 37g · 지방 23g',
-                        items: [
-                            { name: '흑미밥', emoji: '🍚', allergies: [] },
-                            { name: '참치김치찌개', emoji: '🍲', allergies: [5, 6, 9] },
-                            { name: '고등어카레구이', emoji: '🐟', allergies: [2, 5, 6, 7, 12] },
-                            { name: '콩나물무침', emoji: '🌱', allergies: [5] },
-                            { name: '초코칩쿠키', emoji: '🍪', allergies: [1, 2, 4, 5, 6] }
-                        ]
-                    }
-                ]
-            },
-            {
-                dayLabel: '4일차',
-                meals: [
-                    {
-                        type: '중식',
-                        emoji: '☀️',
-                        calories: '905 kcal',
-                        nutrition: '탄수화물 125g · 단백질 42g · 지방 26g',
-                        items: [
-                            { name: '기장밥', emoji: '🍚', allergies: [] },
-                            { name: '소고기미역국', emoji: '🥣', allergies: [5, 6, 16] },
-                            { name: '매콤제육볶음', emoji: '🥩', allergies: [5, 6, 10] },
-                            { name: '해물파전', emoji: '🥞', allergies: [1, 5, 6, 9, 17, 18] },
-                            { name: '상추쌈 & 쌈장', emoji: '🥬', allergies: [4, 5, 6, 14] },
-                            { name: '배추김치', emoji: '🌶️', allergies: [9] }
-                        ]
-                    },
-                    {
-                        type: '석식',
-                        emoji: '🌙',
-                        calories: '880 kcal',
-                        nutrition: '탄수화물 126g · 단백질 34g · 지방 27g',
-                        items: [
-                            { name: '직화불고기버거', emoji: '🍔', allergies: [1, 2, 5, 6, 10, 12, 16] },
-                            { name: '콘샐러드', emoji: '🌽', allergies: [1, 5] },
-                            { name: '웨지감자튀김', emoji: '🍟', allergies: [5, 6] },
-                            { name: '바나나우유', emoji: '🍌', allergies: [2] }
-                        ]
-                    }
-                ]
-            },
-            {
-                dayLabel: '5일차',
-                meals: [
-                    {
-                        type: '중식',
-                        emoji: '☀️',
-                        calories: '940 kcal',
-                        nutrition: '탄수화물 130g · 단백질 43g · 지방 27g',
-                        items: [
-                            { name: '영양닭죽', emoji: '🥣', allergies: [15] },
-                            { name: '회오리감자핫도그', emoji: '🌭', allergies: [1, 2, 5, 6, 10, 12] },
-                            { name: '새우튀김 & 칠리소스', emoji: '🍤', allergies: [1, 5, 6, 9, 12] },
-                            { name: '열무물김치', emoji: '🥬', allergies: [] },
-                            { name: '생크림크로와상', emoji: '🥐', allergies: [1, 2, 5, 6] }
-                        ]
-                    },
-                    {
-                        type: '석식',
-                        emoji: '🌙',
-                        calories: '855 kcal',
-                        nutrition: '탄수화물 122g · 단백질 36g · 지방 24g',
-                        items: [
-                            { name: '발아현미밥', emoji: '🍚', allergies: [] },
-                            { name: '부대찌개', emoji: '🍲', allergies: [1, 2, 5, 6, 9, 10, 16] },
-                            { name: '순살양념치킨', emoji: '🍗', allergies: [4, 5, 6, 12, 15] },
-                            { name: '무쌈말이', emoji: '🥗', allergies: [1, 5] },
-                            { name: '오렌지주스', emoji: '🍊', allergies: [] }
-                        ]
-                    }
-                ]
-            }
+            { dayLabel: '월', meals: [
+                { type: '중식', emoji: '☀️', calories: '895 kcal', nutrition: '탄수화물 124g · 단백질 38g · 지방 26g', items: [
+                    { name: '차수수밥', emoji: '🍚', allergies: [] },
+                    { name: '얼큰순대국밥', emoji: '🍲', allergies: [5, 6, 10, 16] },
+                    { name: '수제등심돈까스 & 브라운소스', emoji: '🍛', allergies: [1, 2, 5, 6, 10, 12] },
+                    { name: '부추양파무침', emoji: '🥗', allergies: [5, 6] },
+                    { name: '깍두기', emoji: '🥬', allergies: [9] },
+                    { name: '요구르트', emoji: '🧃', allergies: [2] } ] },
+                { type: '석식', emoji: '🌙', calories: '840 kcal', nutrition: '탄수화물 118g · 단백질 35g · 지방 24g', items: [
+                    { name: '스팸마요덮밥', emoji: '🍱', allergies: [1, 2, 5, 6, 10, 15] },
+                    { name: '가쓰오우동국물', emoji: '🍜', allergies: [5, 6, 7] },
+                    { name: '타코야끼(2알)', emoji: '🐙', allergies: [1, 5, 6, 17] },
+                    { name: '배추김치', emoji: '🥬', allergies: [9] },
+                    { name: '청포도주스', emoji: '🍇', allergies: [13] } ] } ] },
+            { dayLabel: '화', meals: [
+                { type: '중식', emoji: '☀️', calories: '910 kcal', nutrition: '탄수화물 128g · 단백질 41g · 지방 25g', items: [
+                    { name: '현미찹쌀밥', emoji: '🍚', allergies: [] },
+                    { name: '차돌된장찌개', emoji: '🥘', allergies: [5, 6, 16, 18] },
+                    { name: '간장찜닭 & 당면사리', emoji: '🍗', allergies: [5, 6, 13, 15] },
+                    { name: '계란말이', emoji: '🍳', allergies: [1, 2] },
+                    { name: '총각김치', emoji: '🥬', allergies: [9] },
+                    { name: '방울토마토', emoji: '🍅', allergies: [12] } ] },
+                { type: '석식', emoji: '🌙', calories: '865 kcal', nutrition: '탄수화물 120g · 단백질 36g · 지방 26g', items: [
+                    { name: '김치볶음밥 & 계란후라이', emoji: '🍳', allergies: [1, 5, 6, 9, 10] },
+                    { name: '유부미소장국', emoji: '🥣', allergies: [5, 6] },
+                    { name: '치즈스틱', emoji: '🧀', allergies: [1, 2, 5, 6] },
+                    { name: '단무지무침', emoji: '💛', allergies: [] },
+                    { name: '복숭아아이스티', emoji: '🍑', allergies: [11] } ] } ] },
+            { dayLabel: '수', meals: [
+                { type: '중식', emoji: '☀️', calories: '935 kcal', nutrition: '탄수화물 132g · 단백질 39g · 지방 28g', items: [
+                    { name: '로제스파게티(주식으로 제공)', emoji: '🍝', allergies: [1, 2, 5, 6, 9, 10, 12] },
+                    { name: '양송이크림스프', emoji: '🥣', allergies: [2, 5, 6, 16] },
+                    { name: '마늘바게트', emoji: '🥖', allergies: [2, 5, 6] },
+                    { name: '케이준치킨샐러드', emoji: '🥗', allergies: [1, 4, 5, 6, 15] },
+                    { name: '수제오이피클', emoji: '🥒', allergies: [] },
+                    { name: '초코우유', emoji: '🥛', allergies: [2, 5] } ] },
+                { type: '석식', emoji: '🌙', calories: '850 kcal', nutrition: '탄수화물 121g · 단백질 37g · 지방 23g', items: [
+                    { name: '흑미밥', emoji: '🍚', allergies: [] },
+                    { name: '참치김치찌개', emoji: '🍲', allergies: [5, 6, 9] },
+                    { name: '고등어카레구이', emoji: '🐟', allergies: [2, 5, 6, 7, 12] },
+                    { name: '콩나물무침', emoji: '🌱', allergies: [5] },
+                    { name: '초코칩쿠키', emoji: '🍪', allergies: [1, 2, 4, 5, 6] } ] } ] },
+            { dayLabel: '목', meals: [
+                { type: '중식', emoji: '☀️', calories: '905 kcal', nutrition: '탄수화물 125g · 단백질 42g · 지방 26g', items: [
+                    { name: '기장밥', emoji: '🍚', allergies: [] },
+                    { name: '소고기미역국', emoji: '🥣', allergies: [5, 6, 16] },
+                    { name: '매콤제육볶음', emoji: '🥩', allergies: [5, 6, 10] },
+                    { name: '해물파전', emoji: '🥞', allergies: [1, 5, 6, 9, 17, 18] },
+                    { name: '상추쌈 & 쌈장', emoji: '🥬', allergies: [4, 5, 6, 14] },
+                    { name: '배추김치', emoji: '🌶️', allergies: [9] } ] },
+                { type: '석식', emoji: '🌙', calories: '880 kcal', nutrition: '탄수화물 126g · 단백질 34g · 지방 27g', items: [
+                    { name: '직화불고기버거', emoji: '🍔', allergies: [1, 2, 5, 6, 10, 12, 16] },
+                    { name: '콘샐러드', emoji: '🌽', allergies: [1, 5] },
+                    { name: '웨지감자튀김', emoji: '🍟', allergies: [5, 6] },
+                    { name: '바나나우유', emoji: '🍌', allergies: [2] } ] } ] },
+            { dayLabel: '금', meals: [
+                { type: '중식', emoji: '☀️', calories: '940 kcal', nutrition: '탄수화물 130g · 단백질 43g · 지방 27g', items: [
+                    { name: '영양닭죽', emoji: '🥣', allergies: [15] },
+                    { name: '회오리감자핫도그', emoji: '🌭', allergies: [1, 2, 5, 6, 10, 12] },
+                    { name: '새우튀김 & 칠리소스', emoji: '🍤', allergies: [1, 5, 6, 9, 12] },
+                    { name: '열무물김치', emoji: '🥬', allergies: [] },
+                    { name: '생크림크로와상', emoji: '🥐', allergies: [1, 2, 5, 6] } ] },
+                { type: '석식', emoji: '🌙', calories: '855 kcal', nutrition: '탄수화물 122g · 단백질 36g · 지방 24g', items: [
+                    { name: '발아현미밥', emoji: '🍚', allergies: [] },
+                    { name: '부대찌개', emoji: '🍲', allergies: [1, 2, 5, 6, 9, 10, 16] },
+                    { name: '순살양념치킨', emoji: '🍗', allergies: [4, 5, 6, 12, 15] },
+                    { name: '무쌈말이', emoji: '🥗', allergies: [1, 5] },
+                    { name: '오렌지주스', emoji: '🍊', allergies: [] } ] } ] }
         ];
 
-        /**
-         * 5. 상태 관리 및 날짜 유틸리티 함수
-         */
+        /* ===== 날짜 유틸 ===== */
         const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
         const NEIS_BASE_URL = 'https://open.neis.go.kr/hub';
 
-        function formatDateStr(dateObj) {
-            const y = dateObj.getFullYear();
-            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const d = String(dateObj.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
+        function formatDateStr(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        function parseDateStr(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+        function addDays(d, n) { const c = new Date(d); c.setDate(c.getDate() + n); return c; }
+        function isWeekend(d) { return d.getDay() === 0 || d.getDay() === 6; }
+
+        // 주말이면 다음 월요일로 보정 → 월~금 주간 계산
+        function weekdaysOf(dateObj) {
+            let base = new Date(dateObj);
+            if (base.getDay() === 6) base = addDays(base, 2);
+            if (base.getDay() === 0) base = addDays(base, 1);
+            const monday = addDays(base, -(base.getDay() - 1));
+            return [0, 1, 2, 3, 4].map(i => addDays(monday, i));
+        }
+        // 주말(오늘이 일요일인 지금처럼)에는 다음 월요일을 기본 날짜로
+        function nextSchoolDay(d, step) {
+            let c = addDays(d, step);
+            while (isWeekend(c)) c = addDays(c, step);
+            return c;
         }
 
-        function parseDateStr(dateStr) {
-            const [y, m, d] = dateStr.split('-').map(Number);
-            return new Date(y, m - 1, d);
-        }
-
-        const todayObj = new Date();
-        todayObj.setHours(0, 0, 0, 0);
+        const todayObj = new Date(); todayObj.setHours(0, 0, 0, 0);
         const todayStr = formatDateStr(todayObj);
+        const defaultDateObj = isWeekend(todayObj) ? nextSchoolDay(todayObj, 1) : todayObj;
+        const defaultDateStr = formatDateStr(defaultDateObj);
 
         const SAMPLE_MEAL_MAP = {};
-        const SAMPLE_DATE_LIST = [];
-
-        RAW_SAMPLE_MENUS.forEach((sample, idx) => {
-            const targetDate = new Date(todayObj);
-            targetDate.setDate(todayObj.getDate() + idx);
-            const dateKey = formatDateStr(targetDate);
-            SAMPLE_MEAL_MAP[dateKey] = {
-                ...sample,
-                dateStr: dateKey,
-                dateObj: targetDate
-            };
-            SAMPLE_DATE_LIST.push(dateKey);
+        weekdaysOf(defaultDateObj).forEach((d, idx) => {
+            const key = formatDateStr(d);
+            SAMPLE_MEAL_MAP[key] = { ...RAW_SAMPLE_MENUS[idx], dateStr: key };
         });
 
-        let selectedDateStr = todayStr;
+        /* ===== 상태 ===== */
+        let selectedDateStr = defaultDateStr;
         let selectedMealFilter = 'ALL';
         let myAllergies = new Set();
         let tempModalAllergies = new Set();
         let currentSchool = null;
         let currentMealsList = [];
-
-        // 즐겨찾기 메뉴 키워드 목록 & 월간 식단 캐시
         let favoriteMenus = ['돈까스', '치킨'];
+        let recentSchools = [];
+        let loadSeq = 0; // 응답 순서 꼬임(race condition) 방지
         const monthlyMealCache = {};
 
         try {
-            const savedAllergies = localStorage.getItem('hs_meal_my_allergies');
-            if (savedAllergies) {
-                JSON.parse(savedAllergies).forEach(num => myAllergies.add(Number(num)));
-            }
-            const savedSchool = localStorage.getItem('hs_meal_selected_school');
-            if (savedSchool) {
-                currentSchool = JSON.parse(savedSchool);
-            }
-            const savedFavs = localStorage.getItem('hs_meal_favorite_menus');
-            if (savedFavs) {
-                favoriteMenus = JSON.parse(savedFavs);
-            }
-        } catch (e) {
-            console.warn('로컬 스토리지 접근 제한:', e);
+            const a = localStorage.getItem('hs_meal_my_allergies');
+            if (a) JSON.parse(a).forEach(n => myAllergies.add(Number(n)));
+            const s = localStorage.getItem('hs_meal_selected_school');
+            if (s) currentSchool = JSON.parse(s);
+            const f = localStorage.getItem('hs_meal_favorite_menus');
+            if (f) favoriteMenus = JSON.parse(f);
+            const r = localStorage.getItem('hs_meal_recent_schools');
+            if (r) recentSchools = JSON.parse(r);
+        } catch (e) { console.warn('로컬 스토리지 접근 제한:', e); }
+
+        function saveFavoriteMenusToStorage() { try { localStorage.setItem('hs_meal_favorite_menus', JSON.stringify(favoriteMenus)); } catch (e) {} }
+        function saveRecentSchool(school) {
+            recentSchools = [school, ...recentSchools.filter(s => s.SD_SCHUL_CODE !== school.SD_SCHUL_CODE)].slice(0, 5);
+            try { localStorage.setItem('hs_meal_recent_schools', JSON.stringify(recentSchools)); } catch (e) {}
         }
 
-        function saveFavoriteMenusToStorage() {
-            try {
-                localStorage.setItem('hs_meal_favorite_menus', JSON.stringify(favoriteMenus));
-            } catch (e) {}
+        /* ===== 모달 공통 (ESC 닫기, 스크롤 잠금, 포커스 복귀) ===== */
+        let lastFocusEl = null;
+        function openModal(el, focusEl) {
+            lastFocusEl = document.activeElement;
+            el.classList.remove('hidden'); el.classList.add('flex');
+            document.body.classList.add('modal-open');
+            if (focusEl) setTimeout(() => focusEl.focus(), 80);
+        }
+        function closeModal(el) {
+            el.classList.add('hidden'); el.classList.remove('flex');
+            if (!document.querySelector('[role="dialog"].flex')) document.body.classList.remove('modal-open');
+            if (lastFocusEl && lastFocusEl.focus) lastFocusEl.focus();
         }
 
-        /**
-         * 6. NEIS Open API 호출 함수
-         */
-        async function searchSchoolsFromNeis(schoolName) {
-            const params = new URLSearchParams({
-                Type: 'json',
-                pIndex: '1',
-                pSize: '20',
-                SCHUL_NM: schoolName.trim()
-            });
-            if (NEIS_API_KEY && NEIS_API_KEY.trim()) {
-                params.set('KEY', NEIS_API_KEY.trim());
-            }
+        /* ===== NEIS API ===== */
+        function neisParams(obj) {
+            const p = new URLSearchParams({ Type: 'json', pIndex: '1', ...obj });
+            if (NEIS_API_KEY && NEIS_API_KEY.trim()) p.set('KEY', NEIS_API_KEY.trim());
+            return p;
+        }
 
-            const response = await fetch(`${NEIS_BASE_URL}/schoolInfo?${params.toString()}`);
-            if (!response.ok) {
-                throw new Error(`네트워크 응답 오류 (${response.status})`);
-            }
-            const data = await response.json();
-
-            if (data.schoolInfo && Array.isArray(data.schoolInfo)) {
-                return data.schoolInfo[1]?.row || [];
-            }
-            if (data.RESULT && data.RESULT.CODE === 'INFO-200') {
-                return [];
-            }
+        async function searchSchoolsFromNeis(name) {
+            const res = await fetch(`${NEIS_BASE_URL}/schoolInfo?${neisParams({ pSize: '20', SCHUL_NM: name.trim() })}`);
+            if (!res.ok) throw new Error(`네트워크 응답 오류 (${res.status})`);
+            const data = await res.json();
+            if (data.schoolInfo && Array.isArray(data.schoolInfo)) return data.schoolInfo[1]?.row || [];
+            if (data.RESULT && data.RESULT.CODE === 'INFO-200') return [];
             throw new Error(data.RESULT?.MESSAGE || '학교 정보를 가져오지 못했습니다.');
         }
 
+        const MEAL_EMOJI = { '조식': '🌅', '중식': '☀️', '석식': '🌙' };
+        const MEAL_ORDER = { '조식': 1, '중식': 2, '석식': 3 };
+
         async function fetchMealsFromNeis(school, dateStr) {
-            const ymd = dateStr.replace(/-/g, '');
-            const params = new URLSearchParams({
-                Type: 'json',
-                pIndex: '1',
-                pSize: '10',
-                ATPT_OFCDC_SC_CODE: school.ATPT_OFCDC_SC_CODE,
-                SD_SCHUL_CODE: school.SD_SCHUL_CODE,
-                MLSV_YMD: ymd
+            const params = neisParams({
+                pSize: '10', ATPT_OFCDC_SC_CODE: school.ATPT_OFCDC_SC_CODE,
+                SD_SCHUL_CODE: school.SD_SCHUL_CODE, MLSV_YMD: dateStr.replace(/-/g, '')
             });
-            if (NEIS_API_KEY && NEIS_API_KEY.trim()) {
-                params.set('KEY', NEIS_API_KEY.trim());
-            }
-
-            const response = await fetch(`${NEIS_BASE_URL}/mealServiceDietInfo?${params.toString()}`);
-            if (!response.ok) {
-                throw new Error(`네트워크 응답 오류 (${response.status})`);
-            }
-            const data = await response.json();
-
+            const res = await fetch(`${NEIS_BASE_URL}/mealServiceDietInfo?${params}`);
+            if (!res.ok) throw new Error(`네트워크 응답 오류 (${res.status})`);
+            const data = await res.json();
             if (data.mealServiceDietInfo && Array.isArray(data.mealServiceDietInfo)) {
                 const rows = data.mealServiceDietInfo[1]?.row || [];
-                const mealEmojiMap = { '조식': '🌅', '중식': '☀️', '석식': '🌙' };
-                const orderMap = { '조식': 1, '중식': 2, '석식': 3 };
-
                 const parsed = rows.map(row => ({
                     type: row.MMEAL_SC_NM || '중식',
-                    emoji: mealEmojiMap[row.MMEAL_SC_NM] || '🍱',
+                    emoji: MEAL_EMOJI[row.MMEAL_SC_NM] || '🍱',
                     calories: row.CAL_INFO || '칼로리 정보 없음',
                     nutrition: (row.NTR_INFO || '').replace(/<br\s*\/?>/gi, ' · ') || '영양정보 미제공',
                     items: parseNeisDishString(row.DDISH_NM)
                 }));
-
-                parsed.sort((a, b) => (orderMap[a.type] || 9) - (orderMap[b.type] || 9));
+                parsed.sort((a, b) => (MEAL_ORDER[a.type] || 9) - (MEAL_ORDER[b.type] || 9));
                 return parsed;
             }
-
-            if (data.RESULT && data.RESULT.CODE === 'INFO-200') {
-                return [];
-            }
+            if (data.RESULT && data.RESULT.CODE === 'INFO-200') return [];
             throw new Error(data.RESULT?.MESSAGE || '급식 식단 정보를 불러오지 못했습니다.');
         }
 
-        // 기간(월간) 급식 식단 조회 API (최애 메뉴 검색 및 즐겨찾기 일정 추적용)
         async function fetchRangeMealsForSearch(baseDateStr) {
             const baseDate = parseDateStr(baseDateStr);
             const year = baseDate.getFullYear();
-            const month = String(baseDate.getMonth() + 1).padStart(2, '0');
-            const ym = `${year}${month}`;
+            const ym = `${year}${String(baseDate.getMonth() + 1).padStart(2, '0')}`;
 
             if (!currentSchool) {
                 const results = [];
-                Object.values(SAMPLE_MEAL_MAP).forEach(dayData => {
-                    dayData.meals.forEach(m => {
-                        results.push({
-                            dateStr: dayData.dateStr,
-                            type: m.type,
-                            emoji: m.emoji,
-                            items: m.items
-                        });
-                    });
-                });
+                Object.values(SAMPLE_MEAL_MAP).forEach(day => day.meals.forEach(m =>
+                    results.push({ dateStr: day.dateStr, type: m.type, emoji: m.emoji, items: m.items })));
                 return results;
             }
 
             const cacheKey = `${currentSchool.SD_SCHUL_CODE}_${ym}`;
-            if (monthlyMealCache[cacheKey]) {
-                return monthlyMealCache[cacheKey];
-            }
+            if (monthlyMealCache[cacheKey]) return monthlyMealCache[cacheKey];
 
             const lastDay = new Date(year, baseDate.getMonth() + 1, 0).getDate();
-            const fromYmd = `${ym}01`;
-            const toYmd = `${ym}${String(lastDay).padStart(2, '0')}`;
-
-            const params = new URLSearchParams({
-                Type: 'json',
-                pIndex: '1',
-                pSize: '200',
-                ATPT_OFCDC_SC_CODE: currentSchool.ATPT_OFCDC_SC_CODE,
+            const params = neisParams({
+                pSize: '200', ATPT_OFCDC_SC_CODE: currentSchool.ATPT_OFCDC_SC_CODE,
                 SD_SCHUL_CODE: currentSchool.SD_SCHUL_CODE,
-                MLSV_FROM_YMD: fromYmd,
-                MLSV_TO_YMD: toYmd
+                MLSV_FROM_YMD: `${ym}01`, MLSV_TO_YMD: `${ym}${String(lastDay).padStart(2, '0')}`
             });
-            if (NEIS_API_KEY && NEIS_API_KEY.trim()) {
-                params.set('KEY', NEIS_API_KEY.trim());
-            }
-
-            const response = await fetch(`${NEIS_BASE_URL}/mealServiceDietInfo?${params.toString()}`);
-            if (!response.ok) {
-                throw new Error(`HTTP 오류 (${response.status})`);
-            }
-            const data = await response.json();
+            const res = await fetch(`${NEIS_BASE_URL}/mealServiceDietInfo?${params}`);
+            if (!res.ok) throw new Error(`HTTP 오류 (${res.status})`);
+            const data = await res.json();
 
             if (data.mealServiceDietInfo && Array.isArray(data.mealServiceDietInfo)) {
                 const rows = data.mealServiceDietInfo[1]?.row || [];
-                const mealEmojiMap = { '조식': '🌅', '중식': '☀️', '석식': '🌙' };
-                const orderMap = { '조식': 1, '중식': 2, '석식': 3 };
-
                 const parsed = rows.map(row => {
-                    const rawYmd = row.MLSV_YMD || '';
-                    const formattedDate = rawYmd.length === 8
-                        ? `${rawYmd.slice(0, 4)}-${rawYmd.slice(4, 6)}-${rawYmd.slice(6, 8)}`
-                        : baseDateStr;
+                    const r = row.MLSV_YMD || '';
                     return {
-                        dateStr: formattedDate,
+                        dateStr: r.length === 8 ? `${r.slice(0, 4)}-${r.slice(4, 6)}-${r.slice(6, 8)}` : baseDateStr,
                         type: row.MMEAL_SC_NM || '중식',
-                        emoji: mealEmojiMap[row.MMEAL_SC_NM] || '🍱',
+                        emoji: MEAL_EMOJI[row.MMEAL_SC_NM] || '🍱',
                         items: parseNeisDishString(row.DDISH_NM)
                     };
                 });
-
-                parsed.sort((a, b) => {
-                    if (a.dateStr !== b.dateStr) return a.dateStr.localeCompare(b.dateStr);
-                    return (orderMap[a.type] || 9) - (orderMap[b.type] || 9);
-                });
-
+                parsed.sort((a, b) => a.dateStr !== b.dateStr ? a.dateStr.localeCompare(b.dateStr) : (MEAL_ORDER[a.type] || 9) - (MEAL_ORDER[b.type] || 9));
                 monthlyMealCache[cacheKey] = parsed;
                 return parsed;
             }
-
-            if (data.RESULT && data.RESULT.CODE === 'INFO-200') {
-                monthlyMealCache[cacheKey] = [];
-                return [];
-            }
-
+            if (data.RESULT && data.RESULT.CODE === 'INFO-200') { monthlyMealCache[cacheKey] = []; return []; }
             throw new Error(data.RESULT?.MESSAGE || '월간 식단 데이터를 불러오지 못했습니다.');
         }
 
         function getDDayInfo(targetDateStr) {
-            const target = parseDateStr(targetDateStr);
-            const diffDays = Math.round((target - todayObj) / (1000 * 60 * 60 * 24));
-            if (diffDays === 0) return { label: '오늘 (D-Day)', isUpcoming: true, isToday: true, diffDays };
+            const diffDays = Math.round((parseDateStr(targetDateStr) - todayObj) / 86400000);
+            if (diffDays === 0) return { label: '오늘', isUpcoming: true, isToday: true, diffDays };
             if (diffDays > 0) return { label: `D-${diffDays}`, isUpcoming: true, isToday: false, diffDays };
             return { label: `${Math.abs(diffDays)}일 전`, isUpcoming: false, isToday: false, diffDays };
         }
 
+        function relativeLabel(dateStr) {
+            const diff = Math.round((parseDateStr(dateStr) - todayObj) / 86400000);
+            return ({ '-1': '어제', '0': '오늘', '1': '내일', '2': '모레' })[diff] || '';
+        }
+
+        // 즐겨찾기 매칭: 메뉴명이 키워드를 포함할 때만 (예전 코드는 역방향 포함도 허용해 '밥' 같은 오탐 발생)
         function isMenuFavorited(menuName) {
-            const normMenu = menuName.replace(/\s+/g, '').toLowerCase();
-            return favoriteMenus.some(fav => {
-                const normFav = fav.replace(/\s+/g, '').toLowerCase();
-                return normFav && (normMenu.includes(normFav) || normFav.includes(normMenu));
-            });
+            const m = menuName.replace(/\s+/g, '').toLowerCase();
+            return favoriteMenus.some(fav => { const f = fav.replace(/\s+/g, '').toLowerCase(); return f && m.includes(f); });
         }
 
         function toggleFavoriteKeyword(rawKeyword) {
             const keyword = rawKeyword.trim();
             if (!keyword) return;
-
-            const existingIdx = favoriteMenus.findIndex(
-                f => f.replace(/\s+/g, '').toLowerCase() === keyword.replace(/\s+/g, '').toLowerCase()
-            );
-
-            if (existingIdx >= 0) {
-                const removed = favoriteMenus[existingIdx];
-                favoriteMenus.splice(existingIdx, 1);
-                showToast(`'${removed}' 즐겨찾기가 해제되었습니다.`);
+            const norm = s => s.replace(/\s+/g, '').toLowerCase();
+            const idx = favoriteMenus.findIndex(f => norm(f) === norm(keyword));
+            if (idx >= 0) {
+                const removed = favoriteMenus.splice(idx, 1)[0];
+                showToast(`'${removed}' 즐겨찾기를 해제했어요.`, '☆');
             } else {
                 favoriteMenus.unshift(keyword);
-                showToast(`⭐ '${keyword}' 메뉴가 즐겨찾기에 등록되었습니다!`);
+                showToast(`'${keyword}' 메뉴를 즐겨찾기에 추가했어요!`, '⭐');
             }
-
             saveFavoriteMenusToStorage();
             updateUpcomingFavoritesUI();
             renderFavoriteChips();
-            renderMealDisplay();
+            renderMealCards(currentMealsList);
         }
 
-        /**
-         * 7. UI 렌더링 함수들
-         */
+        /* ===== 렌더링 ===== */
         function updateSelectedSchoolUI() {
-            const nameEl = document.getElementById('selectedSchoolName');
-            const officeEl = document.getElementById('selectedSchoolOffice');
-            const addrEl = document.getElementById('selectedSchoolAddress');
-            const badgeEl = document.getElementById('schoolKindBadge');
-            const subEl = document.getElementById('headerSchoolSubtitle');
-
+            const $ = id => document.getElementById(id);
             if (currentSchool) {
-                nameEl.textContent = currentSchool.SCHUL_NM;
-                officeEl.textContent = currentSchool.ATPT_OFCDC_SC_NM || '교육청';
-                addrEl.textContent = currentSchool.ORG_RDNMA || '주소 정보 없음';
-                badgeEl.textContent = currentSchool.SCHUL_KND_SC_NM || 'NEIS 실데이터';
-                subEl.textContent = `${currentSchool.SCHUL_NM} 실시간 급식 식단`;
+                $('selectedSchoolName').textContent = currentSchool.SCHUL_NM;
+                $('selectedSchoolOffice').textContent = currentSchool.ATPT_OFCDC_SC_NM || '교육청';
+                $('selectedSchoolAddress').textContent = currentSchool.ORG_RDNMA || '주소 정보 없음';
+                $('schoolKindBadge').textContent = currentSchool.SCHUL_KND_SC_NM || 'NEIS';
+                $('headerSchoolSubtitle').textContent = `${currentSchool.SCHUL_NM} 급식 식단`;
             } else {
-                nameEl.textContent = '샘플 모드 (청운고등학교)';
-                officeEl.textContent = '데모 식단';
-                addrEl.textContent = "우측 '학교 변경 / 검색' 버튼을 눌러 전국 학교를 검색하세요.";
-                badgeEl.textContent = '데모 모드';
-                subEl.textContent = '학교를 검색하여 실제 급식을 조회하세요';
+                $('selectedSchoolName').textContent = '샘플 모드 (청운고등학교)';
+                $('selectedSchoolOffice').textContent = '데모 식단';
+                $('selectedSchoolAddress').textContent = "우측 '학교 검색' 버튼을 눌러 우리 학교를 찾아보세요.";
+                $('schoolKindBadge').textContent = '데모 모드';
+                $('headerSchoolSubtitle').textContent = '학교를 검색하여 실제 급식을 조회하세요';
             }
         }
 
+        // 선택 날짜가 속한 주(월~금) 탭
         function renderQuickDateTabs() {
             const container = document.getElementById('quickDateTabs');
+            const week = weekdaysOf(parseDateStr(selectedDateStr));
+            document.getElementById('weekRangeLabel').textContent =
+                `${week[0].getMonth() + 1}/${week[0].getDate()} ~ ${week[4].getMonth() + 1}/${week[4].getDate()}`;
             container.innerHTML = '';
-
-            SAMPLE_DATE_LIST.forEach((dateKey) => {
-                const dObj = parseDateStr(dateKey);
-                const month = dObj.getMonth() + 1;
-                const day = dObj.getDate();
-                const dayName = DAY_NAMES[dObj.getDay()];
-                const isSelected = dateKey === selectedDateStr;
-                const isToday = dateKey === todayStr;
-
+            week.forEach(dObj => {
+                const key = formatDateStr(dObj);
+                const isSelected = key === selectedDateStr;
+                const isToday = key === todayStr;
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = `flex flex-col items-center justify-center py-2 px-1 rounded-2xl border transition-all active:scale-95 ${
-                    isSelected
-                        ? 'bg-brand-600 text-white border-brand-600 shadow-sm font-bold'
-                        : 'bg-slate-50 hover:bg-brand-50 text-slate-700 border-slate-200/80 font-medium'
-                }`;
-
+                btn.setAttribute('aria-pressed', isSelected);
+                btn.className = `relative flex flex-col items-center justify-center py-2 px-1 rounded-2xl border transition-all active:scale-95 ${
+                    isSelected ? 'bg-brand-600 text-white border-brand-600 shadow-sm font-bold'
+                               : 'bg-slate-50 hover:bg-brand-50 text-slate-700 border-slate-200/80 font-medium'}`;
                 btn.innerHTML = `
-                    <span class="text-[10px] sm:text-xs ${isSelected ? 'text-brand-100' : 'text-slate-400'}">
-                        ${isToday ? '오늘' : `${month}/${day}`}
-                    </span>
-                    <span class="text-xs sm:text-sm mt-0.5">${dayName}요일</span>
+                    <span class="text-xs ${isSelected ? 'text-brand-100' : 'text-slate-500'}">${dObj.getMonth() + 1}/${dObj.getDate()}</span>
+                    <span class="text-sm mt-0.5">${DAY_NAMES[dObj.getDay()]}</span>
+                    ${isToday ? `<span class="absolute -top-1.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-1.5 rounded-full ${isSelected ? 'bg-amber-400 text-slate-900' : 'bg-brand-600 text-white'}">오늘</span>` : ''}
                 `;
-
-                btn.addEventListener('click', () => {
-                    selectDate(dateKey);
-                });
-
+                btn.addEventListener('click', () => selectDate(key));
                 container.appendChild(btn);
             });
         }
 
         function renderMealTypeTabs(meals) {
-            const tabsContainer = document.getElementById('mealTypeTabsContainer');
-            if (!meals || meals.length <= 1) {
-                tabsContainer.classList.add('hidden');
-                return;
-            }
-
-            tabsContainer.classList.remove('hidden');
+            const tabs = document.getElementById('mealTypeTabsContainer');
+            if (!meals || meals.length <= 1) { tabs.classList.add('hidden'); selectedMealFilter = 'ALL'; return; }
+            tabs.classList.remove('hidden');
             const types = ['ALL', ...meals.map(m => m.type)];
-            if (!types.includes(selectedMealFilter)) {
-                selectedMealFilter = 'ALL';
-            }
-
-            tabsContainer.innerHTML = types.map(t => {
-                const isActive = selectedMealFilter === t;
-                const label = t === 'ALL' ? `전체 (${meals.length})` : t;
-                return `
-                    <button type="button" data-meal-filter="${t}" class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                        isActive
-                            ? 'bg-brand-600 text-white shadow-xs'
-                            : 'text-slate-600 hover:bg-brand-50 hover:text-brand-600'
-                    }">
-                        ${label}
-                    </button>
-                `;
+            if (!types.includes(selectedMealFilter)) selectedMealFilter = 'ALL';
+            tabs.innerHTML = types.map(t => {
+                const active = selectedMealFilter === t;
+                return `<button type="button" data-meal-filter="${esc(t)}" aria-pressed="${active}" class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold transition-all ${
+                    active ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-600'}">${t === 'ALL' ? '전체' : esc(t)}</button>`;
             }).join('');
+            tabs.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+                selectedMealFilter = btn.getAttribute('data-meal-filter');
+                renderMealTypeTabs(currentMealsList);
+                renderMealCards(currentMealsList);
+            }));
+        }
 
-            tabsContainer.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    selectedMealFilter = btn.getAttribute('data-meal-filter');
-                    renderMealTypeTabs(currentMealsList);
-                    renderMealCards(currentMealsList);
-                });
-            });
+        function skeletonHtml() {
+            const row = `<div class="flex items-center gap-3 p-4"><div class="w-9 h-9 rounded-xl skeleton"></div><div class="flex-1 space-y-2"><div class="h-3.5 w-1/2 rounded skeleton"></div><div class="h-3 w-1/3 rounded skeleton"></div></div></div>`;
+            return `<div class="bg-white rounded-3xl border border-brand-100 shadow-sm overflow-hidden" aria-busy="true"><div class="px-5 py-4 border-b border-brand-100/80 flex items-center gap-3"><div class="w-10 h-10 rounded-2xl skeleton"></div><div class="h-4 w-20 rounded skeleton"></div></div>${row}${row}${row}${row}</div>`;
+        }
+
+        function setBadge(text, cls) {
+            const el = document.getElementById('dateRelativeBadge');
+            el.textContent = text; el.className = `text-xs mt-1 ${cls}`;
         }
 
         async function loadAndRenderMeals() {
-            const dateObj = parseDateStr(selectedDateStr);
-            const year = dateObj.getFullYear();
-            const month = dateObj.getMonth() + 1;
-            const day = dateObj.getDate();
-            const dayName = DAY_NAMES[dateObj.getDay()];
-
-            document.getElementById('currentDateDisplay').textContent = `${year}년 ${month}월 ${day}일 (${dayName})`;
+            const seq = ++loadSeq;
+            const d = parseDateStr(selectedDateStr);
+            document.getElementById('currentDateDisplay').textContent = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_NAMES[d.getDay()]})`;
             document.getElementById('datePicker').value = selectedDateStr;
-
-            const badgeEl = document.getElementById('dateRelativeBadge');
+            const rel = relativeLabel(selectedDateStr);
             const container = document.getElementById('mealContainer');
 
             if (!currentSchool) {
                 const sampleDay = SAMPLE_MEAL_MAP[selectedDateStr];
-                if (selectedDateStr === todayStr) {
-                    badgeEl.textContent = '✨ 오늘의 샘플 식단';
-                    badgeEl.className = 'text-xs font-bold text-brand-600 mt-1';
-                } else if (sampleDay) {
-                    badgeEl.textContent = `📌 샘플 식단 (${sampleDay.dayLabel})`;
-                    badgeEl.className = 'text-xs font-semibold text-brand-500 mt-1';
-                } else {
-                    badgeEl.textContent = '등록된 샘플 식단 없음';
-                    badgeEl.className = 'text-xs font-medium text-slate-400 mt-1';
-                }
-
+                setBadge(sampleDay ? `${rel ? rel + ' · ' : ''}샘플 식단` : '샘플 식단이 없는 날짜예요', sampleDay ? 'font-semibold text-brand-600' : 'font-medium text-slate-500');
                 currentMealsList = sampleDay ? sampleDay.meals : [];
                 renderMealTypeTabs(currentMealsList);
                 renderMealCards(currentMealsList);
                 return;
             }
 
-            badgeEl.textContent = selectedDateStr === todayStr ? '✨ 오늘의 실시간 식단' : '📡 NEIS 급식 조회 중...';
-            badgeEl.className = 'text-xs font-bold text-brand-600 mt-1';
+            setBadge(rel ? `${rel} 급식 불러오는 중…` : '급식 불러오는 중…', 'font-medium text-brand-600');
             document.getElementById('mealTypeTabsContainer').classList.add('hidden');
-
-            container.innerHTML = `
-                <div class="bg-white rounded-3xl p-8 text-center border border-brand-100 shadow-sm space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto animate-pulse">
-                        <span class="tossface text-2xl">🍱</span>
-                    </div>
-                    <p class="text-sm font-bold text-slate-700">${currentSchool.SCHUL_NM} 식단을 불러오는 중...</p>
-                    <p class="text-xs text-slate-400">나이스(NEIS) 교육정보 개방 포털과 통신하고 있습니다.</p>
-                </div>
-            `;
+            container.innerHTML = skeletonHtml();
 
             try {
                 const meals = await fetchMealsFromNeis(currentSchool, selectedDateStr);
+                if (seq !== loadSeq) return; // 더 최신 요청이 있으면 무시
                 currentMealsList = meals;
-                badgeEl.textContent = meals.length > 0
-                    ? `✅ 총 ${meals.length}끼 식단 조회 완료`
-                    : '등록된 급식 식단 없음';
-                badgeEl.className = meals.length > 0
-                    ? 'text-xs font-bold text-brand-600 mt-1'
-                    : 'text-xs font-medium text-slate-400 mt-1';
-
-                renderMealTypeTabs(currentMealsList);
-                renderMealCards(currentMealsList);
+                setBadge(meals.length > 0 ? `${rel ? rel + ' · ' : ''}총 ${meals.length}끼` : '등록된 급식 없음',
+                         meals.length > 0 ? 'font-bold text-brand-600' : 'font-medium text-slate-500');
+                renderMealTypeTabs(meals);
+                renderMealCards(meals);
             } catch (err) {
+                if (seq !== loadSeq) return;
                 currentMealsList = [];
-                badgeEl.textContent = '⚠️ API 조회 오류';
-                badgeEl.className = 'text-xs font-bold text-rose-500 mt-1';
-
+                setBadge('조회 오류', 'font-bold text-rose-600');
                 container.innerHTML = `
                     <div class="bg-white rounded-3xl p-6 sm:p-8 text-center border border-rose-200 shadow-sm fade-in">
-                        <div class="w-14 h-14 bg-rose-50 rounded-3xl flex items-center justify-center mx-auto mb-3">
-                            <span class="tossface text-3xl">⚠️</span>
-                        </div>
-                        <h3 class="text-base font-bold text-slate-800">급식 데이터를 불러오지 못했습니다</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
-                            ${err.message}<br>
-                            일시적인 네트워크 제한이거나 인증키 한도 초과일 수 있습니다.
-                        </p>
+                        <div class="w-14 h-14 bg-rose-50 rounded-3xl flex items-center justify-center mx-auto mb-3"><span class="tossface text-3xl">⚠️</span></div>
+                        <h3 class="text-base font-bold text-slate-800">급식 데이터를 불러오지 못했어요</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">${esc(err.message)}<br>일시적인 네트워크 문제이거나 인증키 한도 초과일 수 있어요.</p>
                         <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
-                            <button id="retryFetchBtn" class="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all">
-                                다시 시도
-                            </button>
-                            <button id="fallbackDemoBtn" class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold active:scale-95 transition-all">
-                                샘플(데모) 모드로 보기
-                            </button>
+                            <button id="retryFetchBtn" class="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all">다시 시도</button>
+                            <button id="fallbackDemoBtn" class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold active:scale-95 transition-all">샘플 모드로 보기</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 document.getElementById('retryFetchBtn').addEventListener('click', loadAndRenderMeals);
                 document.getElementById('fallbackDemoBtn').addEventListener('click', activateDemoMode);
             }
-        }
-
-        function renderMealDisplay() {
-            renderMealCards(currentMealsList);
         }
 
         function renderMealCards(meals) {
@@ -1104,484 +758,258 @@
             container.innerHTML = '';
 
             if (!meals || meals.length === 0) {
+                const weekend = isWeekend(parseDateStr(selectedDateStr));
                 container.innerHTML = `
                     <div class="bg-white rounded-3xl p-8 sm:p-10 text-center border border-slate-200/80 shadow-sm fade-in">
-                        <div class="w-16 h-16 bg-brand-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                            <span class="tossface text-4xl">🍽️</span>
+                        <div class="w-16 h-16 bg-brand-50 rounded-3xl flex items-center justify-center mx-auto mb-4"><span class="tossface text-4xl">${weekend ? '😴' : '🍽️'}</span></div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800">${weekend ? '주말에는 급식이 없어요' : '이 날의 급식 정보가 없어요'}</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-sm mx-auto leading-relaxed">공휴일·방학이거나 학교에서 아직 식단을 등록하지 않았을 수 있어요.</p>
+                        <div class="mt-5 flex flex-wrap justify-center gap-2">
+                            <button id="goPrevMealBtn" class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold active:scale-95 transition-all">← 이전 급식일</button>
+                            <button id="goNextMealBtn" class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold active:scale-95 transition-all">다음 급식일 →</button>
+                            <button id="goTodayMealBtn" class="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold shadow-sm active:scale-95 transition-all">오늘로 이동</button>
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-800">해당 날짜의 급식 정보가 없습니다</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-sm mx-auto leading-relaxed">
-                            주말·공휴일·방학이거나 아직 학교에서 식단을 등록하지 않은 날짜입니다.
-                        </p>
-                        <button id="goTodayMealBtn" class="mt-5 inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-2xl shadow-sm active:scale-95 transition-all">
-                            <span class="tossface text-base">📅</span>
-                            <span>오늘 날짜로 이동하기</span>
-                        </button>
-                    </div>
-                `;
-                document.getElementById('goTodayMealBtn').addEventListener('click', () => {
-                    selectDate(todayStr);
-                });
+                    </div>`;
+                document.getElementById('goPrevMealBtn').addEventListener('click', () => stepDay(-1));
+                document.getElementById('goNextMealBtn').addEventListener('click', () => stepDay(1));
+                document.getElementById('goTodayMealBtn').addEventListener('click', () => selectDate(defaultDateStr));
                 return;
             }
 
-            const filteredMeals = selectedMealFilter === 'ALL'
-                ? meals
-                : meals.filter(m => m.type === selectedMealFilter);
+            const filtered = selectedMealFilter === 'ALL' ? meals : meals.filter(m => m.type === selectedMealFilter);
 
-            filteredMeals.forEach((meal) => {
-                let warningMenuCount = 0;
-                meal.items.forEach(item => {
-                    const hasMyAllergy = item.allergies.some(a => myAllergies.has(a));
-                    if (hasMyAllergy) warningMenuCount++;
-                });
-
+            filtered.forEach(meal => {
+                const warningCount = meal.items.filter(it => it.allergies.some(a => myAllergies.has(a))).length;
                 const card = document.createElement('article');
                 card.className = 'bg-white rounded-3xl overflow-hidden border border-brand-100 shadow-sm fade-in';
 
                 const headerHtml = `
                     <div class="px-5 py-4 bg-gradient-to-r from-brand-50/90 to-white border-b border-brand-100/80 flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-2.5">
-                            <span class="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-xs">
-                                <span class="tossface text-xl">${meal.emoji}</span>
-                            </span>
+                            <span class="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-sm"><span class="tossface text-xl">${meal.emoji}</span></span>
                             <div>
-                                <div class="flex items-center gap-2">
-                                    <h3 class="text-base sm:text-lg font-extrabold text-slate-800">${meal.type}</h3>
-                                    ${warningMenuCount > 0 ? `
-                                        <span class="inline-flex items-center gap-1 bg-rose-100 text-rose-700 text-[11px] font-bold px-2 py-0.5 rounded-full">
-                                            <span class="tossface text-xs">🚨</span> 알레르기 주의 ${warningMenuCount}건
-                                        </span>
-                                    ` : ''}
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-base sm:text-lg font-extrabold text-slate-800">${esc(meal.type)}</h3>
+                                    ${warningCount > 0 ? `<span class="inline-flex items-center gap-1 bg-rose-100 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-full"><span class="tossface text-xs">🚨</span> 알레르기 주의 ${warningCount}건</span>` : ''}
                                 </div>
-                                <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">${meal.nutrition}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">${esc(meal.nutrition)}</p>
                             </div>
                         </div>
-                        <div class="bg-brand-100/70 text-brand-700 font-bold text-xs sm:text-sm px-3 py-1.5 rounded-xl">
-                            🔥 ${meal.calories}
-                        </div>
-                    </div>
-                `;
+                        <div class="bg-brand-100/70 text-brand-700 font-bold text-xs sm:text-sm px-3 py-1.5 rounded-xl">🔥 ${esc(meal.calories)}</div>
+                    </div>`;
 
-                const itemsHtml = meal.items.map(item => {
-                    const matchedAllergies = item.allergies.filter(a => myAllergies.has(a));
-                    const isDanger = matchedAllergies.length > 0;
+                // 위험 메뉴를 맨 위로 올려 한눈에 확인 (같은 위험도 내에서는 원래 순서 유지)
+                const ordered = meal.items
+                    .map((it, i) => ({ it, i, danger: it.allergies.some(a => myAllergies.has(a)) }))
+                    .sort((a, b) => (b.danger - a.danger) || (a.i - b.i));
+
+                const itemsHtml = ordered.map(({ it: item, danger: isDanger }) => {
                     const isFav = isMenuFavorited(item.name);
-
-                    const allergyBadges = item.allergies.length > 0
-                        ? item.allergies.map(code => {
-                            const info = ALLERGY_INFO[code];
-                            const isMine = myAllergies.has(code);
-                            if (!info) return '';
-                            return `
-                                <span title="${code}. ${info.name}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-colors ${
-                                    isMine
-                                        ? 'bg-rose-600 text-white shadow-2xs ring-2 ring-rose-200'
-                                        : 'bg-slate-100 text-slate-600'
-                                }">
-                                    <span class="tossface text-xs">${info.emoji}</span>
-                                    <span>${info.name}</span>
-                                    <span class="opacity-75 text-[10px]">(${code})</span>
-                                </span>
-                            `;
+                    // 내 알레르기를 앞에 배치
+                    const sortedAllergies = [...item.allergies].sort((a, b) => (myAllergies.has(b) - myAllergies.has(a)) || (a - b));
+                    const badges = sortedAllergies.length > 0
+                        ? sortedAllergies.map(code => {
+                            const info = ALLERGY_INFO[code]; const mine = myAllergies.has(code);
+                            return `<span title="${code}. ${info.name}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold ${mine ? 'bg-rose-600 text-white ring-2 ring-rose-200' : 'bg-slate-100 text-slate-600'}">
+                                <span class="tossface text-xs">${info.emoji}</span><span>${info.name}</span><span class="opacity-75 text-[10px]">(${code})</span></span>`;
                         }).join('')
-                        : `<span class="text-[11px] text-slate-400 font-medium">알레르기 유발 없음</span>`;
+                        : `<span class="text-xs text-slate-500 font-medium">알레르기 유발 없음</span>`;
 
                     return `
-                        <li class="p-3.5 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors ${
-                            isDanger ? 'bg-rose-50/70' : isFav ? 'bg-amber-50/50' : 'hover:bg-slate-50/80'
-                        }">
+                        <li class="p-3.5 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors ${isDanger ? 'bg-rose-50/70' : isFav ? 'bg-amber-50/50' : 'hover:bg-slate-50/80'}">
                             <div class="flex items-center justify-between sm:justify-start gap-3">
-                                <div class="flex items-center gap-3">
-                                    <span class="w-9 h-9 rounded-xl ${isDanger ? 'bg-rose-100' : isFav ? 'bg-amber-100' : 'bg-brand-50'} flex items-center justify-center shrink-0">
-                                        <span class="tossface text-xl">${item.emoji}</span>
-                                    </span>
-                                    <div>
-                                        <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span class="font-bold text-sm sm:text-base ${isDanger ? 'text-rose-900' : 'text-slate-800'}">
-                                                ${item.name}
-                                            </span>
-                                            ${isFav ? `
-                                                <span class="text-[11px] font-extrabold text-amber-700 bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded-md">
-                                                    ⭐ 최애
-                                                </span>
-                                            ` : ''}
-                                            ${isDanger ? `
-                                                <span class="text-[11px] font-extrabold text-rose-600 bg-rose-100 px-1.5 py-0.5 rounded-md">
-                                                    섭취 주의!
-                                                </span>
-                                            ` : ''}
-                                        </div>
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span class="w-9 h-9 rounded-xl ${isDanger ? 'bg-rose-100' : isFav ? 'bg-amber-100' : 'bg-brand-50'} flex items-center justify-center shrink-0"><span class="tossface text-xl">${item.emoji}</span></span>
+                                    <div class="flex items-center gap-1.5 flex-wrap min-w-0">
+                                        <span class="font-bold text-sm sm:text-base ${isDanger ? 'text-rose-900' : 'text-slate-800'}">${esc(item.name)}</span>
+                                        ${isFav ? `<span class="text-xs font-extrabold text-amber-800 bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded-md">⭐ 최애</span>` : ''}
+                                        ${isDanger ? `<span class="text-xs font-extrabold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded-md">섭취 주의</span>` : ''}
                                     </div>
                                 </div>
-                                <button type="button" data-fav-menu="${item.name.replace(/"/g, '&quot;')}" title="${isFav ? '즐겨찾기 해제' : '이 메뉴 즐겨찾기 추가'}" class="fav-star-btn p-1.5 rounded-xl border transition-all active:scale-90 shrink-0 ${
-                                    isFav
-                                        ? 'bg-amber-100 border-amber-300 text-amber-600'
-                                        : 'bg-white border-slate-200 text-slate-400 hover:text-amber-500 hover:border-amber-300'
-                                }">
-                                    <span class="tossface text-sm">${isFav ? '⭐' : '☆'}</span>
+                                <button type="button" data-fav-menu="${esc(item.name)}" aria-pressed="${isFav}" aria-label="${esc(item.name)} ${isFav ? '즐겨찾기 해제' : '즐겨찾기 추가'}" class="fav-star-btn w-9 h-9 flex items-center justify-center rounded-xl border transition-all active:scale-90 shrink-0 ${isFav ? 'bg-amber-100 border-amber-300 text-amber-600' : 'bg-white border-slate-200 text-slate-400 hover:text-amber-500 hover:border-amber-300'}">
+                                    <span class="tossface text-base">${isFav ? '⭐' : '☆'}</span>
                                 </button>
                             </div>
-                            <div class="flex flex-wrap items-center gap-1.5 pl-12 sm:pl-0 sm:justify-end">
-                                ${allergyBadges}
-                            </div>
-                        </li>
-                    `;
+                            <div class="flex flex-wrap items-center gap-1.5 pl-12 sm:pl-0 sm:justify-end">${badges}</div>
+                        </li>`;
                 }).join('');
 
-                card.innerHTML = `
-                    ${headerHtml}
-                    <ul class="divide-y divide-slate-100">
-                        ${itemsHtml}
-                    </ul>
-                `;
-
-                card.querySelectorAll('.fav-star-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const menuName = btn.getAttribute('data-fav-menu');
-                        toggleFavoriteKeyword(menuName);
-                    });
-                });
-
+                card.innerHTML = `${headerHtml}<ul class="divide-y divide-slate-100">${itemsHtml}</ul>`;
+                card.querySelectorAll('.fav-star-btn').forEach(btn => btn.addEventListener('click', () => toggleFavoriteKeyword(btn.getAttribute('data-fav-menu'))));
                 container.appendChild(card);
             });
         }
 
-        // 다가오는 최애(즐겨찾기) 메뉴 알리미 카드 렌더링
         async function updateUpcomingFavoritesUI() {
             const countBadge = document.getElementById('favMenuCountBadge');
             const contentEl = document.getElementById('upcomingFavContent');
 
-            if (favoriteMenus.length > 0) {
-                countBadge.textContent = favoriteMenus.length;
-                countBadge.classList.remove('hidden');
-            } else {
+            if (favoriteMenus.length > 0) { countBadge.textContent = favoriteMenus.length; countBadge.classList.remove('hidden'); }
+            else {
                 countBadge.classList.add('hidden');
-                contentEl.innerHTML = `
-                    <p class="text-xs text-slate-500">
-                        등록된 즐겨찾기 메뉴가 없습니다. 식단표의 <span class="font-bold text-amber-700">☆</span> 버튼을 누르거나 메뉴를 검색해 등록해보세요!
-                    </p>
-                `;
+                contentEl.innerHTML = `<p class="text-xs text-slate-600">즐겨찾기한 메뉴가 없어요. 식단표의 <span class="font-bold text-amber-700">☆</span> 버튼을 누르거나 메뉴를 검색해 등록해보세요!</p>`;
                 return;
             }
 
-            contentEl.innerHTML = `
-                <div class="text-xs text-amber-800/80 animate-pulse py-1">즐겨찾기한 메뉴의 이번 달 급식 일정을 확인하는 중...</div>
-            `;
+            contentEl.innerHTML = `<div class="h-12 rounded-2xl skeleton"></div>`;
 
             try {
-                const mealsList = await fetchRangeMealsForSearch(todayStr);
+                // 월말에는 다음 달 식단까지 함께 확인
+                const nextMonthFirst = formatDateStr(new Date(todayObj.getFullYear(), todayObj.getMonth() + 1, 1));
+                const lists = currentSchool
+                    ? await Promise.all([fetchRangeMealsForSearch(todayStr), fetchRangeMealsForSearch(nextMonthFirst).catch(() => [])])
+                    : [await fetchRangeMealsForSearch(todayStr)];
+                const mealsList = lists.flat();
                 const matches = [];
-
                 mealsList.forEach(meal => {
                     const dDay = getDDayInfo(meal.dateStr);
                     if (!dDay.isUpcoming) return;
-
                     meal.items.forEach(item => {
-                        const normName = item.name.replace(/\s+/g, '').toLowerCase();
-                        const matchedFav = favoriteMenus.find(fav => {
-                            const normFav = fav.replace(/\s+/g, '').toLowerCase();
-                            return normFav && (normName.includes(normFav) || normFav.includes(normName));
-                        });
-                        if (matchedFav) {
-                            matches.push({
-                                dateStr: meal.dateStr,
-                                type: meal.type,
-                                itemName: item.name,
-                                emoji: item.emoji,
-                                dDay
-                            });
-                        }
+                        if (isMenuFavorited(item.name)) matches.push({ dateStr: meal.dateStr, type: meal.type, itemName: item.name, emoji: item.emoji, dDay });
                     });
                 });
 
                 if (matches.length === 0) {
                     contentEl.innerHTML = `
                         <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 bg-white/80 rounded-2xl px-3.5 py-2.5 border border-amber-100">
-                            <span>즐겨찾기(${favoriteMenus.slice(0, 3).join(', ')}${favoriteMenus.length > 3 ? ' 등' : ''}) 메뉴가 이번 달 남은 식단에는 아직 없어요.</span>
+                            <span>즐겨찾기(${esc(favoriteMenus.slice(0, 3).join(', '))}${favoriteMenus.length > 3 ? ' 등' : ''}) 메뉴가 앞으로의 식단에는 아직 없어요.</span>
                             <button type="button" id="searchOtherMonthFavBtn" class="text-brand-600 font-bold hover:underline shrink-0">다른 메뉴 검색 →</button>
-                        </div>
-                    `;
-                    const btn = document.getElementById('searchOtherMonthFavBtn');
-                    if (btn) btn.addEventListener('click', () => document.getElementById('openFavMenuModalBtn').click());
+                        </div>`;
+                    document.getElementById('searchOtherMonthFavBtn').addEventListener('click', () => document.getElementById('openFavMenuModalBtn').click());
                     return;
                 }
 
                 matches.sort((a, b) => a.dDay.diffDays - b.dDay.diffDays);
-                const topMatches = matches.slice(0, 4);
+                contentEl.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${matches.slice(0, 4).map(m => {
+                    const d = parseDateStr(m.dateStr);
+                    return `
+                        <button type="button" data-jump-date="${m.dateStr}" class="upcoming-fav-card text-left bg-white hover:bg-amber-50/90 border ${m.dDay.isToday ? 'border-amber-400 ring-2 ring-amber-200/70' : 'border-amber-200/70'} rounded-2xl p-2.5 sm:px-3.5 flex items-center justify-between gap-2 transition-all active:scale-[0.99]">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="tossface text-xl shrink-0">${m.emoji}</span>
+                                <div class="min-w-0">
+                                    <div class="font-bold text-sm text-slate-800 truncate">${esc(m.itemName)}</div>
+                                    <div class="text-xs text-slate-500">${d.getMonth() + 1}/${d.getDate()}(${DAY_NAMES[d.getDay()]}) · ${esc(m.type)}</div>
+                                </div>
+                            </div>
+                            <span class="shrink-0 text-xs font-extrabold px-2 py-1 rounded-xl ${m.dDay.isToday ? 'bg-amber-500 text-white' : 'bg-brand-50 text-brand-700'}">${m.dDay.label}</span>
+                        </button>`;
+                }).join('')}</div>`;
 
-                contentEl.innerHTML = `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        ${topMatches.map(m => {
-                            const dObj = parseDateStr(m.dateStr);
-                            const dateLabel = `${dObj.getMonth() + 1}/${dObj.getDate()}(${DAY_NAMES[dObj.getDay()]})`;
-                            return `
-                                <button type="button" data-jump-date="${m.dateStr}" class="upcoming-fav-card text-left bg-white hover:bg-amber-50/90 border ${m.dDay.isToday ? 'border-amber-400 ring-2 ring-amber-200/70' : 'border-amber-200/70'} rounded-2xl p-2.5 sm:px-3.5 flex items-center justify-between gap-2 transition-all active:scale-[0.99] shadow-2xs">
-                                    <div class="flex items-center gap-2.5 min-w-0">
-                                        <span class="tossface text-xl shrink-0">${m.emoji}</span>
-                                        <div class="min-w-0">
-                                            <div class="font-bold text-xs sm:text-sm text-slate-800 truncate">${m.itemName}</div>
-                                            <div class="text-[11px] text-slate-500">${dateLabel} · ${m.type}</div>
-                                        </div>
-                                    </div>
-                                    <span class="shrink-0 text-[11px] font-extrabold px-2 py-1 rounded-xl ${
-                                        m.dDay.isToday ? 'bg-amber-500 text-white' : 'bg-brand-50 text-brand-700'
-                                    }">
-                                        ${m.dDay.label}
-                                    </span>
-                                </button>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-
-                contentEl.querySelectorAll('.upcoming-fav-card').forEach(cardBtn => {
-                    cardBtn.addEventListener('click', () => {
-                        const targetDate = cardBtn.getAttribute('data-jump-date');
-                        selectDate(targetDate);
-                        showToast(`${targetDate} 식단으로 이동했습니다.`);
-                    });
-                });
+                contentEl.querySelectorAll('.upcoming-fav-card').forEach(b => b.addEventListener('click', () => {
+                    selectDate(b.getAttribute('data-jump-date'));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }));
             } catch (err) {
-                contentEl.innerHTML = `
-                    <p class="text-xs text-slate-500">즐겨찾기 일정을 불러오지 못했습니다. (우측 '메뉴 검색 · 관리'에서 직접 확인 가능)</p>
-                `;
+                contentEl.innerHTML = `<p class="text-xs text-slate-500">즐겨찾기 일정을 불러오지 못했어요. '검색 · 관리'에서 직접 확인해 보세요.</p>`;
             }
         }
 
         function renderFavoriteChips() {
             const listEl = document.getElementById('favKeywordsChipList');
-            const countText = document.getElementById('favListCountText');
-            countText.textContent = `${favoriteMenus.length}개 등록됨`;
-
-            if (favoriteMenus.length === 0) {
-                listEl.innerHTML = `<span class="text-xs text-slate-400">등록된 즐겨찾기 키워드가 없습니다.</span>`;
-                return;
-            }
-
+            document.getElementById('favListCountText').textContent = `${favoriteMenus.length}개`;
+            if (favoriteMenus.length === 0) { listEl.innerHTML = `<span class="text-xs text-slate-500">등록된 즐겨찾기가 없어요.</span>`; return; }
             listEl.innerHTML = favoriteMenus.map(kw => `
-                <div class="inline-flex items-center bg-white border border-amber-300 rounded-xl overflow-hidden shadow-2xs">
-                    <button type="button" data-search-fav="${kw.replace(/"/g, '&quot;')}" class="fav-chip-search px-2.5 py-1 text-xs font-bold text-amber-900 hover:bg-amber-100/70 transition-colors">
-                        ⭐ ${kw}
-                    </button>
-                    <button type="button" data-remove-fav="${kw.replace(/"/g, '&quot;')}" title="삭제" class="fav-chip-remove px-1.5 py-1 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors border-l border-amber-100">
-                        ✕
-                    </button>
-                </div>
-            `).join('');
+                <div class="inline-flex items-center bg-white border border-amber-300 rounded-xl overflow-hidden">
+                    <button type="button" data-search-fav="${esc(kw)}" class="fav-chip-search px-2.5 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100/70 transition-colors">⭐ ${esc(kw)}</button>
+                    <button type="button" data-remove-fav="${esc(kw)}" aria-label="${esc(kw)} 삭제" class="fav-chip-remove px-2 py-1.5 text-xs text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors border-l border-amber-100">✕</button>
+                </div>`).join('');
+            listEl.querySelectorAll('.fav-chip-search').forEach(btn => btn.addEventListener('click', () => {
+                const kw = btn.getAttribute('data-search-fav');
+                document.getElementById('favMenuSearchInput').value = kw;
+                executeFavoriteMenuSearch(kw);
+            }));
+            listEl.querySelectorAll('.fav-chip-remove').forEach(btn => btn.addEventListener('click', () => toggleFavoriteKeyword(btn.getAttribute('data-remove-fav'))));
+        }
 
-            listEl.querySelectorAll('.fav-chip-search').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const kw = btn.getAttribute('data-search-fav');
-                    document.getElementById('favMenuSearchInput').value = kw;
-                    executeFavoriteMenuSearch(kw);
-                });
-            });
-
-            listEl.querySelectorAll('.fav-chip-remove').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const kw = btn.getAttribute('data-remove-fav');
-                    toggleFavoriteKeyword(kw);
-                });
-            });
+        function favResultsEmptyHtml() {
+            return `<div class="text-center py-9 text-slate-500 text-xs sm:text-sm"><span class="tossface text-3xl block mb-2">🔍</span>메뉴 이름을 검색하거나 즐겨찾기를 눌러보세요.<br><span class="text-xs text-slate-500 mt-1 block">결과를 누르면 그날의 식단표로 이동해요.</span></div>`;
         }
 
         async function executeFavoriteMenuSearch(rawKeyword) {
             const keyword = rawKeyword.trim();
             const resultsEl = document.getElementById('favMenuSearchResults');
+            if (!keyword) { showToast('검색할 메뉴 이름을 입력해 주세요.', '💬'); return; }
 
-            if (!keyword) {
-                showToast('검색할 메뉴 이름을 입력해 주세요.');
-                return;
-            }
-
-            resultsEl.innerHTML = `
-                <div class="text-center py-10 text-brand-600 text-xs sm:text-sm font-medium animate-pulse">
-                    <span class="tossface text-3xl block mb-2">⏳</span>
-                    이번 달 식단에서 '${keyword}' 나오는 날짜를 찾는 중...
-                </div>
-            `;
+            resultsEl.innerHTML = `<div class="space-y-2"><div class="h-14 rounded-2xl skeleton"></div><div class="h-14 rounded-2xl skeleton"></div></div>`;
 
             try {
                 const mealsList = await fetchRangeMealsForSearch(selectedDateStr);
-                const normQuery = keyword.replace(/\s+/g, '').toLowerCase();
-                const foundEntries = [];
-
+                const q = keyword.replace(/\s+/g, '').toLowerCase();
+                const found = [];
                 mealsList.forEach(meal => {
-                    const matchedItems = meal.items.filter(item =>
-                        item.name.replace(/\s+/g, '').toLowerCase().includes(normQuery)
-                    );
-                    if (matchedItems.length > 0) {
-                        foundEntries.push({
-                            dateStr: meal.dateStr,
-                            type: meal.type,
-                            mealEmoji: meal.emoji,
-                            matchedItems,
-                            dDay: getDDayInfo(meal.dateStr)
-                        });
-                    }
+                    const matched = meal.items.filter(it => it.name.replace(/\s+/g, '').toLowerCase().includes(q));
+                    if (matched.length) found.push({ dateStr: meal.dateStr, type: meal.type, mealEmoji: meal.emoji, matchedItems: matched, dDay: getDDayInfo(meal.dateStr) });
                 });
 
-                const isAlreadyFav = favoriteMenus.some(
-                    f => f.replace(/\s+/g, '').toLowerCase() === normQuery
-                );
-
-                const headerActionHtml = `
+                const isFav = favoriteMenus.some(f => f.replace(/\s+/g, '').toLowerCase() === q);
+                const headerHtml = `
                     <div class="flex items-center justify-between gap-2 bg-brand-50/80 border border-brand-100 rounded-2xl p-3">
-                        <div class="text-xs text-slate-700">
-                            <span class="font-extrabold text-brand-700">'${keyword}'</span> 검색 결과 총 <span class="font-bold">${foundEntries.length}건</span>
-                        </div>
-                        <button type="button" id="toggleSearchKwFavBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
-                            isAlreadyFav
-                                ? 'bg-amber-400 text-slate-900 shadow-2xs'
-                                : 'bg-white border border-amber-300 text-amber-800 hover:bg-amber-50'
-                        }">
-                            ${isAlreadyFav ? '⭐ 즐겨찾기 등록됨' : '☆ 즐겨찾기 추가'}
-                        </button>
-                    </div>
-                `;
+                        <div class="text-xs text-slate-700"><span class="font-extrabold text-brand-700">'${esc(keyword)}'</span> 검색 결과 <span class="font-bold">${found.length}건</span> <span class="text-slate-500">(${parseDateStr(selectedDateStr).getMonth() + 1}월)</span></div>
+                        <button type="button" id="toggleSearchKwFavBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${isFav ? 'bg-amber-400 text-slate-900' : 'bg-white border border-amber-300 text-amber-800 hover:bg-amber-50'}">${isFav ? '⭐ 등록됨' : '☆ 즐겨찾기 추가'}</button>
+                    </div>`;
 
-                if (foundEntries.length === 0) {
-                    resultsEl.innerHTML = `
-                        ${headerActionHtml}
-                        <div class="text-center py-8 text-slate-400 text-xs sm:text-sm">
-                            <span class="tossface text-3xl block mb-2">🍽️</span>
-                            조회된 식단 기간 내에 '${keyword}' 메뉴가 없습니다.<br>
-                            즐겨찾기에 추가해 두면 추후 식단 등록 시 자동으로 알려드려요!
-                        </div>
-                    `;
+                if (found.length === 0) {
+                    resultsEl.innerHTML = `${headerHtml}<div class="text-center py-8 text-slate-500 text-xs sm:text-sm"><span class="tossface text-3xl block mb-2">🍽️</span>이번 달 식단에는 '${esc(keyword)}' 메뉴가 없어요.<br>즐겨찾기에 추가하면 나올 때 알려드려요!</div>`;
                 } else {
-                    const listHtml = foundEntries.map(entry => {
-                        const dObj = parseDateStr(entry.dateStr);
-                        const fullDateLabel = `${dObj.getMonth() + 1}월 ${dObj.getDate()}일 (${DAY_NAMES[dObj.getDay()]})`;
-
+                    resultsEl.innerHTML = headerHtml + `<div class="space-y-2">${found.map(e => {
+                        const d = parseDateStr(e.dateStr);
                         return `
-                            <button type="button" data-result-date="${entry.dateStr}" class="fav-result-row w-full text-left p-3.5 rounded-2xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/50 transition-all flex items-center justify-between gap-3 group active:scale-[0.99]">
+                            <button type="button" data-result-date="${e.dateStr}" class="fav-result-row w-full text-left p-3.5 rounded-2xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/50 transition-all flex items-center justify-between gap-3 group active:scale-[0.99]">
                                 <div class="min-w-0 space-y-1">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="font-extrabold text-sm text-slate-800 group-hover:text-brand-700">${fullDateLabel}</span>
-                                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">${entry.mealEmoji} ${entry.type}</span>
-                                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${
-                                            entry.dDay.isToday
-                                                ? 'bg-amber-500 text-white'
-                                                : entry.dDay.isUpcoming
-                                                    ? 'bg-brand-100 text-brand-700'
-                                                    : 'bg-slate-100 text-slate-400'
-                                        }">
-                                            ${entry.dDay.label}
-                                        </span>
+                                        <span class="font-extrabold text-sm text-slate-800 group-hover:text-brand-700">${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_NAMES[d.getDay()]})</span>
+                                        <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">${e.mealEmoji} ${esc(e.type)}</span>
+                                        <span class="text-xs font-bold px-2 py-0.5 rounded-md ${e.dDay.isToday ? 'bg-amber-500 text-white' : e.dDay.isUpcoming ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-500'}">${e.dDay.label}</span>
                                     </div>
-                                    <div class="flex flex-wrap gap-1.5">
-                                        ${entry.matchedItems.map(mi => `
-                                            <span class="inline-flex items-center gap-1 text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-lg">
-                                                <span class="tossface text-sm">${mi.emoji}</span>
-                                                <span>${mi.name}</span>
-                                            </span>
-                                        `).join('')}
-                                    </div>
+                                    <div class="flex flex-wrap gap-1.5">${e.matchedItems.map(mi => `<span class="inline-flex items-center gap-1 text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-lg"><span class="tossface text-sm">${mi.emoji}</span><span>${esc(mi.name)}</span></span>`).join('')}</div>
                                 </div>
-                                <span class="shrink-0 text-xs font-bold text-brand-600 bg-brand-50 group-hover:bg-brand-600 group-hover:text-white px-3 py-1.5 rounded-xl transition-colors">
-                                    식단 보기
-                                </span>
-                            </button>
-                        `;
-                    }).join('');
-
-                    resultsEl.innerHTML = `${headerActionHtml}<div class="space-y-2">${listHtml}</div>`;
+                                <span class="shrink-0 text-xs font-bold text-brand-600 bg-brand-50 group-hover:bg-brand-600 group-hover:text-white px-3 py-1.5 rounded-xl transition-colors">보기</span>
+                            </button>`;
+                    }).join('')}</div>`;
                 }
 
-                document.getElementById('toggleSearchKwFavBtn').addEventListener('click', () => {
-                    toggleFavoriteKeyword(keyword);
-                    executeFavoriteMenuSearch(keyword);
-                });
-
-                resultsEl.querySelectorAll('.fav-result-row').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const targetDate = btn.getAttribute('data-result-date');
-                        document.getElementById('favMenuModal').classList.add('hidden');
-                        document.getElementById('favMenuModal').classList.remove('flex');
-                        selectDate(targetDate);
-                        showToast(`${targetDate} 급식 식단으로 이동했습니다.`);
-                    });
-                });
+                document.getElementById('toggleSearchKwFavBtn').addEventListener('click', () => { toggleFavoriteKeyword(keyword); executeFavoriteMenuSearch(keyword); });
+                resultsEl.querySelectorAll('.fav-result-row').forEach(btn => btn.addEventListener('click', () => {
+                    closeModal(document.getElementById('favMenuModal'));
+                    selectDate(btn.getAttribute('data-result-date'));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }));
             } catch (err) {
-                resultsEl.innerHTML = `
-                    <div class="text-center py-8 px-4 text-rose-600 text-xs sm:text-sm bg-rose-50/70 rounded-2xl border border-rose-100">
-                        <span class="tossface text-3xl block mb-2">⚠️</span>
-                        <p class="font-bold">메뉴 검색 중 오류가 발생했습니다.</p>
-                        <p class="text-xs text-rose-500 mt-1">${err.message}</p>
-                    </div>
-                `;
+                resultsEl.innerHTML = `<div class="text-center py-8 px-4 text-rose-600 text-xs sm:text-sm bg-rose-50/70 rounded-2xl border border-rose-100"><span class="tossface text-3xl block mb-2">⚠️</span><p class="font-bold">메뉴 검색 중 오류가 발생했어요.</p><p class="text-xs text-rose-500 mt-1">${esc(err.message)}</p></div>`;
             }
         }
 
         function updateMyAllergyUI() {
-            const countBadge = document.getElementById('myAllergyCountBadge');
+            const badge = document.getElementById('myAllergyCountBadge');
             const banner = document.getElementById('activeAllergyBanner');
-            const listText = document.getElementById('activeAllergyListText');
-
             if (myAllergies.size > 0) {
-                countBadge.textContent = myAllergies.size;
-                countBadge.classList.remove('hidden');
-
-                const sortedCodes = Array.from(myAllergies).sort((a, b) => a - b);
-                const labels = sortedCodes.map(c => `${ALLERGY_INFO[c].emoji} ${ALLERGY_INFO[c].name}(${c})`);
-                listText.textContent = ' ' + labels.join(', ');
+                badge.textContent = myAllergies.size; badge.classList.remove('hidden');
+                const labels = Array.from(myAllergies).sort((a, b) => a - b).map(c => `${ALLERGY_INFO[c].emoji} ${ALLERGY_INFO[c].name}(${c})`);
+                document.getElementById('activeAllergyListText').textContent = ' ' + labels.join(', ');
                 banner.classList.remove('hidden');
-            } else {
-                countBadge.classList.add('hidden');
-                banner.classList.add('hidden');
-            }
+            } else { badge.classList.add('hidden'); banner.classList.add('hidden'); }
         }
 
         function renderAllergyLegend() {
-            const grid = document.getElementById('allergyLegendGrid');
-            grid.innerHTML = Object.entries(ALLERGY_INFO).map(([code, info]) => `
+            document.getElementById('allergyLegendGrid').innerHTML = Object.entries(ALLERGY_INFO).map(([code, info]) => `
                 <div class="flex items-center gap-2 bg-slate-50 px-2.5 py-2 rounded-xl border border-slate-100">
-                    <span class="tossface text-base">${info.emoji}</span>
-                    <span class="font-bold text-brand-600">${code}.</span>
-                    <span class="text-slate-700 font-medium">${info.name}</span>
-                </div>
-            `).join('');
+                    <span class="tossface text-base">${info.emoji}</span><span class="font-bold text-brand-600">${code}.</span><span class="text-slate-700 font-medium">${info.name}</span>
+                </div>`).join('');
         }
 
         function renderModalCheckboxes() {
             const container = document.getElementById('modalAllergyCheckboxes');
             container.innerHTML = '';
-
             Object.entries(ALLERGY_INFO).forEach(([codeStr, info]) => {
-                const code = Number(codeStr);
-                const isChecked = tempModalAllergies.has(code);
-
+                const code = Number(codeStr); const on = tempModalAllergies.has(code);
                 const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = `flex items-center gap-2 p-2.5 rounded-2xl border text-left transition-all active:scale-95 ${
-                    isChecked
-                        ? 'bg-brand-50 border-brand-500 text-brand-800 font-bold ring-2 ring-brand-200'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-medium'
-                }`;
-
+                btn.type = 'button'; btn.setAttribute('aria-pressed', on);
+                btn.className = `flex items-center gap-2 p-2.5 rounded-2xl border text-left transition-all active:scale-95 ${on ? 'bg-brand-50 border-brand-500 text-brand-800 font-bold ring-2 ring-brand-200' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-medium'}`;
                 btn.innerHTML = `
                     <span class="tossface text-xl">${info.emoji}</span>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-xs sm:text-sm truncate">${code}. ${info.name}</div>
-                    </div>
-                    <div class="w-4 h-4 rounded-full flex items-center justify-center ${
-                        isChecked ? 'bg-brand-600 text-white' : 'border border-slate-300'
-                    }">
-                        ${isChecked ? '<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>' : ''}
-                    </div>
-                `;
-
-                btn.addEventListener('click', () => {
-                    if (tempModalAllergies.has(code)) {
-                        tempModalAllergies.delete(code);
-                    } else {
-                        tempModalAllergies.add(code);
-                    }
-                    renderModalCheckboxes();
-                });
-
+                    <div class="flex-1 min-w-0 text-sm truncate">${code}. ${info.name}</div>
+                    <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${on ? 'bg-brand-600 text-white' : 'border border-slate-300'}">${on ? '<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>' : ''}</div>`;
+                btn.addEventListener('click', () => { on ? tempModalAllergies.delete(code) : tempModalAllergies.add(code); renderModalCheckboxes(); });
                 container.appendChild(btn);
             });
         }
@@ -1592,268 +1020,172 @@
             renderQuickDateTabs();
             loadAndRenderMeals();
         }
+        function stepDay(step) { selectDate(formatDateStr(nextSchoolDay(parseDateStr(selectedDateStr), step))); }
+        function stepWeek(step) { selectDate(formatDateStr(addDays(weekdaysOf(parseDateStr(selectedDateStr))[0], step * 7))); }
 
         function activateDemoMode() {
             currentSchool = null;
-            try {
-                localStorage.removeItem('hs_meal_selected_school');
-            } catch (e) {}
+            try { localStorage.removeItem('hs_meal_selected_school'); } catch (e) {}
             updateSelectedSchoolUI();
             updateUpcomingFavoritesUI();
-            loadAndRenderMeals();
-            showToast('샘플(데모) 식단 모드로 전환되었습니다.');
+            selectDate(defaultDateStr);
+            showToast('샘플 식단 모드로 전환했어요.', '🧪');
         }
 
         let toastTimer = null;
-        function showToast(msg) {
+        function showToast(msg, emoji = '✅') {
             const toast = document.getElementById('toastMessage');
             document.getElementById('toastText').textContent = msg;
-            toast.classList.remove('opacity-0', 'translate-y-2');
-            toast.classList.add('opacity-100', 'translate-y-0');
-
+            toast.querySelector('.tossface').textContent = emoji;
+            toast.classList.remove('opacity-0', 'translate-y-2'); toast.classList.add('opacity-100', 'translate-y-0');
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', 'translate-y-2');
-            }, 2200);
+            toastTimer = setTimeout(() => { toast.classList.remove('opacity-100', 'translate-y-0'); toast.classList.add('opacity-0', 'translate-y-2'); }, 2200);
         }
 
-        /**
-         * 8. 이벤트 바인딩 및 초기화
-         */
+        /* ===== 초기화 & 이벤트 ===== */
         document.addEventListener('DOMContentLoaded', () => {
             updateSelectedSchoolUI();
             renderAllergyLegend();
             updateMyAllergyUI();
             updateUpcomingFavoritesUI();
-            selectDate(todayStr);
+            selectDate(defaultDateStr);
 
-            // 날짜 피커 변경 이벤트
-            document.getElementById('datePicker').addEventListener('change', (e) => {
-                if (e.target.value) {
-                    selectDate(e.target.value);
-                }
+            document.getElementById('datePicker').addEventListener('change', e => { if (e.target.value) selectDate(e.target.value); });
+            document.getElementById('prevDayBtn').addEventListener('click', () => stepDay(-1));
+            document.getElementById('nextDayBtn').addEventListener('click', () => stepDay(1));
+            document.getElementById('prevWeekBtn').addEventListener('click', () => stepWeek(-1));
+            document.getElementById('nextWeekBtn').addEventListener('click', () => stepWeek(1));
+            document.getElementById('resetToTodayBtn').addEventListener('click', () => { selectDate(defaultDateStr); showToast(isWeekend(todayObj) ? '주말이라 다음 급식일로 이동했어요.' : '오늘 급식으로 이동했어요.', '📅'); });
+
+            // 모바일 스와이프로 날짜 이동 (가로 이동이 세로 스크롤보다 확실히 클 때만)
+            let tx = 0, ty = 0;
+            const swipeArea = document.getElementById('mealContainer');
+            swipeArea.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+            swipeArea.addEventListener('touchend', e => {
+                const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+                if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 2) stepDay(dx < 0 ? 1 : -1);
+            }, { passive: true });
+
+            // 키보드 ←/→ 로 날짜 이동, ESC로 모달 닫기
+            document.addEventListener('keydown', e => {
+                const openModalEl = document.querySelector('[role="dialog"].flex');
+                if (e.key === 'Escape' && openModalEl) { closeModal(openModalEl); return; }
+                if (openModalEl || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+                if (e.key === 'ArrowLeft') stepDay(-1);
+                if (e.key === 'ArrowRight') stepDay(1);
             });
 
-            // 이전/다음 날짜 버튼
-            document.getElementById('prevDayBtn').addEventListener('click', () => {
-                const cur = parseDateStr(selectedDateStr);
-                cur.setDate(cur.getDate() - 1);
-                selectDate(formatDateStr(cur));
+            // 모든 모달: 닫기 버튼 / 배경 클릭
+            document.querySelectorAll('[role="dialog"]').forEach(m => {
+                m.addEventListener('click', e => { if (e.target === m) closeModal(m); });
+                m.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', () => closeModal(m)));
             });
 
-            document.getElementById('nextDayBtn').addEventListener('click', () => {
-                const cur = parseDateStr(selectedDateStr);
-                cur.setDate(cur.getDate() + 1);
-                selectDate(formatDateStr(cur));
-            });
-
-            // 오늘로 이동 버튼
-            document.getElementById('resetToTodayBtn').addEventListener('click', () => {
-                selectDate(todayStr);
-                showToast('오늘 급식 날짜로 이동했습니다.');
-            });
-
-            // --- 학교 검색 모달 제어 ---
+            /* --- 학교 검색 --- */
             const schoolModal = document.getElementById('schoolSearchModal');
             const schoolInput = document.getElementById('schoolSearchInput');
             const schoolResultsEl = document.getElementById('schoolSearchResults');
 
-            function openSchoolModal() {
-                schoolModal.classList.remove('hidden');
-                schoolModal.classList.add('flex');
-                setTimeout(() => schoolInput.focus(), 100);
-            }
-            function closeSchoolModal() {
-                schoolModal.classList.add('hidden');
-                schoolModal.classList.remove('flex');
+            function schoolItemButton(school, tag) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left p-3.5 rounded-2xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/60 transition-all flex items-center justify-between gap-3 group active:scale-[0.99]';
+                btn.innerHTML = `
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm sm:text-base text-slate-800 group-hover:text-brand-700 truncate">${esc(school.SCHUL_NM)}</span>
+                            <span class="text-xs font-semibold bg-slate-100 group-hover:bg-brand-100 text-slate-600 group-hover:text-brand-700 px-2 py-0.5 rounded-md shrink-0">${esc(school.ATPT_OFCDC_SC_NM)}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1 truncate">${esc(school.ORG_RDNMA || '주소 미제공')}</p>
+                    </div>
+                    <span class="shrink-0 text-xs font-bold text-brand-600 bg-brand-50 group-hover:bg-brand-600 group-hover:text-white px-3 py-1.5 rounded-xl transition-colors">${tag}</span>`;
+                btn.addEventListener('click', () => {
+                    currentSchool = {
+                        ATPT_OFCDC_SC_CODE: school.ATPT_OFCDC_SC_CODE, ATPT_OFCDC_SC_NM: school.ATPT_OFCDC_SC_NM,
+                        SD_SCHUL_CODE: school.SD_SCHUL_CODE, SCHUL_NM: school.SCHUL_NM,
+                        SCHUL_KND_SC_NM: school.SCHUL_KND_SC_NM, ORG_RDNMA: school.ORG_RDNMA
+                    };
+                    try { localStorage.setItem('hs_meal_selected_school', JSON.stringify(currentSchool)); } catch (e) {}
+                    saveRecentSchool(currentSchool);
+                    selectedMealFilter = 'ALL';
+                    updateSelectedSchoolUI(); updateUpcomingFavoritesUI();
+                    closeModal(schoolModal);
+                    loadAndRenderMeals();
+                    showToast(`${school.SCHUL_NM} 급식을 불러와요.`, '🏫');
+                });
+                return btn;
             }
 
-            document.getElementById('openSchoolSearchBtn').addEventListener('click', openSchoolModal);
-            document.getElementById('closeSchoolSearchBtn').addEventListener('click', closeSchoolModal);
-            schoolModal.addEventListener('click', (e) => {
-                if (e.target === schoolModal) closeSchoolModal();
-            });
+            function renderSchoolModalIdle() {
+                schoolResultsEl.innerHTML = '';
+                if (recentSchools.length) {
+                    const label = document.createElement('p');
+                    label.className = 'text-xs font-bold text-slate-500 px-1';
+                    label.textContent = '최근 선택한 학교';
+                    schoolResultsEl.appendChild(label);
+                    recentSchools.forEach(s => schoolResultsEl.appendChild(schoolItemButton(s, '선택')));
+                } else {
+                    schoolResultsEl.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs sm:text-sm"><span class="tossface text-3xl block mb-2">🔎</span>학교명을 입력하고 검색해 주세요.<br><span class="text-xs">예: 서울고등학교, 광주제일고</span></div>`;
+                }
+            }
 
-            document.getElementById('switchToDemoModeBtn').addEventListener('click', () => {
-                closeSchoolModal();
-                activateDemoMode();
-            });
+            document.getElementById('openSchoolSearchBtn').addEventListener('click', () => { renderSchoolModalIdle(); openModal(schoolModal, schoolInput); });
+            document.getElementById('switchToDemoModeBtn').addEventListener('click', () => { closeModal(schoolModal); activateDemoMode(); });
 
             async function executeSchoolSearch(query) {
-                if (!query || !query.trim()) {
-                    showToast('검색할 학교명을 입력해주세요.');
-                    return;
-                }
-
-                schoolResultsEl.innerHTML = `
-                    <div class="text-center py-10 text-brand-600 text-xs sm:text-sm font-medium animate-pulse">
-                        <span class="tossface text-3xl block mb-2">⏳</span>
-                        '${query.trim()}' 학교 정보를 검색 중입니다...
-                    </div>
-                `;
-
+                if (!query || !query.trim()) { showToast('검색할 학교명을 입력해 주세요.', '💬'); return; }
+                schoolResultsEl.innerHTML = `<div class="space-y-2"><div class="h-16 rounded-2xl skeleton"></div><div class="h-16 rounded-2xl skeleton"></div><div class="h-16 rounded-2xl skeleton"></div></div>`;
                 try {
                     const schools = await searchSchoolsFromNeis(query);
                     if (schools.length === 0) {
-                        schoolResultsEl.innerHTML = `
-                            <div class="text-center py-10 text-slate-400 text-xs sm:text-sm">
-                                <span class="tossface text-3xl block mb-2">😢</span>
-                                '${query.trim()}'에 대한 검색 결과가 없습니다.<br>
-                                정확한 학교명(예: 서울고등학교)으로 다시 검색해보세요.
-                            </div>
-                        `;
+                        schoolResultsEl.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs sm:text-sm"><span class="tossface text-3xl block mb-2">😢</span>'${esc(query.trim())}' 검색 결과가 없어요.<br>정확한 학교명(예: 서울고등학교)으로 다시 검색해 보세요.</div>`;
                         return;
                     }
-
                     schoolResultsEl.innerHTML = '';
-                    schools.forEach(school => {
-                        const itemBtn = document.createElement('button');
-                        itemBtn.type = 'button';
-                        itemBtn.className = 'w-full text-left p-3.5 rounded-2xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/60 transition-all flex items-center justify-between gap-3 group active:scale-[0.99]';
-                        itemBtn.innerHTML = `
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-bold text-sm sm:text-base text-slate-800 group-hover:text-brand-700 truncate">${school.SCHUL_NM}</span>
-                                    <span class="text-[11px] font-semibold bg-slate-100 group-hover:bg-brand-100 text-slate-600 group-hover:text-brand-700 px-2 py-0.5 rounded-md shrink-0">${school.ATPT_OFCDC_SC_NM}</span>
-                                </div>
-                                <p class="text-xs text-slate-400 mt-1 truncate">${school.ORG_RDNMA || '주소 미제공'}</p>
-                            </div>
-                            <span class="shrink-0 text-xs font-bold text-brand-600 bg-brand-50 group-hover:bg-brand-600 group-hover:text-white px-3 py-1.5 rounded-xl transition-colors">
-                                선택
-                            </span>
-                        `;
-
-                        itemBtn.addEventListener('click', () => {
-                            currentSchool = {
-                                ATPT_OFCDC_SC_CODE: school.ATPT_OFCDC_SC_CODE,
-                                ATPT_OFCDC_SC_NM: school.ATPT_OFCDC_SC_NM,
-                                SD_SCHUL_CODE: school.SD_SCHUL_CODE,
-                                SCHUL_NM: school.SCHUL_NM,
-                                SCHUL_KND_SC_NM: school.SCHUL_KND_SC_NM,
-                                ORG_RDNMA: school.ORG_RDNMA
-                            };
-                            try {
-                                localStorage.setItem('hs_meal_selected_school', JSON.stringify(currentSchool));
-                            } catch (e) {}
-
-                            selectedMealFilter = 'ALL';
-                            updateSelectedSchoolUI();
-                            updateUpcomingFavoritesUI();
-                            closeSchoolModal();
-                            loadAndRenderMeals();
-                            showToast(`${school.SCHUL_NM} 급식을 불러옵니다.`);
-                        });
-
-                        schoolResultsEl.appendChild(itemBtn);
-                    });
+                    schools.forEach(s => schoolResultsEl.appendChild(schoolItemButton(s, '선택')));
                 } catch (err) {
-                    schoolResultsEl.innerHTML = `
-                        <div class="text-center py-8 px-4 text-rose-600 text-xs sm:text-sm bg-rose-50/70 rounded-2xl border border-rose-100">
-                            <span class="tossface text-3xl block mb-2">⚠️</span>
-                            <p class="font-bold">학교 검색 중 오류가 발생했습니다.</p>
-                            <p class="text-xs text-rose-500 mt-1">${err.message}</p>
-                        </div>
-                    `;
+                    schoolResultsEl.innerHTML = `<div class="text-center py-8 px-4 text-rose-600 text-xs sm:text-sm bg-rose-50/70 rounded-2xl border border-rose-100"><span class="tossface text-3xl block mb-2">⚠️</span><p class="font-bold">학교 검색 중 오류가 발생했어요.</p><p class="text-xs text-rose-500 mt-1">${esc(err.message)}</p></div>`;
                 }
             }
+            document.getElementById('schoolSearchForm').addEventListener('submit', e => { e.preventDefault(); executeSchoolSearch(schoolInput.value); });
 
-            document.getElementById('schoolSearchForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                executeSchoolSearch(schoolInput.value);
-            });
-
-            document.querySelectorAll('.quick-school-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const q = chip.getAttribute('data-query');
-                    schoolInput.value = q;
-                    executeSchoolSearch(q);
-                });
-            });
-
-            // --- 최애 메뉴 검색 & 즐겨찾기 모달 제어 ---
+            /* --- 최애 메뉴 --- */
             const favModal = document.getElementById('favMenuModal');
             const favInput = document.getElementById('favMenuSearchInput');
-
             function openFavMenuModal() {
                 renderFavoriteChips();
-                favModal.classList.remove('hidden');
-                favModal.classList.add('flex');
-                setTimeout(() => favInput.focus(), 100);
+                document.getElementById('favMenuSearchResults').innerHTML = favResultsEmptyHtml();
+                openModal(favModal, favInput);
             }
-            function closeFavMenuModal() {
-                favModal.classList.add('hidden');
-                favModal.classList.remove('flex');
-            }
-
             document.getElementById('openFavMenuModalBtn').addEventListener('click', openFavMenuModal);
             document.getElementById('manageFavInlineBtn').addEventListener('click', openFavMenuModal);
-            document.getElementById('closeFavMenuModalBtn').addEventListener('click', closeFavMenuModal);
-            favModal.addEventListener('click', (e) => {
-                if (e.target === favModal) closeFavMenuModal();
-            });
+            document.getElementById('favMenuSearchForm').addEventListener('submit', e => { e.preventDefault(); executeFavoriteMenuSearch(favInput.value); });
+            document.querySelectorAll('.quick-menu-chip').forEach(chip => chip.addEventListener('click', () => {
+                const menu = chip.getAttribute('data-menu'); favInput.value = menu; executeFavoriteMenuSearch(menu);
+            }));
 
-            document.getElementById('favMenuSearchForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                executeFavoriteMenuSearch(favInput.value);
-            });
-
-            document.querySelectorAll('.quick-menu-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const menu = chip.getAttribute('data-menu');
-                    favInput.value = menu;
-                    executeFavoriteMenuSearch(menu);
-                });
-            });
-
-            // --- 알레르기 안내표 접기/펼치기 ---
+            /* --- 알레르기 안내표 (기본 접힘) --- */
             const legendGrid = document.getElementById('allergyLegendGrid');
-            const legendChevron = document.getElementById('legendChevron');
-            let isLegendOpen = true;
-            document.getElementById('toggleLegendBtn').addEventListener('click', () => {
-                isLegendOpen = !isLegendOpen;
-                legendGrid.classList.toggle('hidden', !isLegendOpen);
-                legendChevron.style.transform = isLegendOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+            const legendBtn = document.getElementById('toggleLegendBtn');
+            let legendOpen = false;
+            legendBtn.addEventListener('click', () => {
+                legendOpen = !legendOpen;
+                legendGrid.classList.toggle('hidden', !legendOpen);
+                legendBtn.setAttribute('aria-expanded', legendOpen);
+                document.getElementById('legendChevron').style.transform = legendOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
             });
 
-            // --- 내 알레르기 모달 열기/닫기/저장 ---
-            const modal = document.getElementById('allergyModal');
-            function openAllergyModal() {
-                tempModalAllergies = new Set(myAllergies);
-                renderModalCheckboxes();
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-            function closeAllergyModal() {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-
+            /* --- 알레르기 모달 --- */
+            const allergyModal = document.getElementById('allergyModal');
+            function openAllergyModal() { tempModalAllergies = new Set(myAllergies); renderModalCheckboxes(); openModal(allergyModal); }
             document.getElementById('openAllergyModalBtn').addEventListener('click', openAllergyModal);
             document.getElementById('editAllergyInlineBtn').addEventListener('click', openAllergyModal);
-            document.getElementById('closeAllergyModalBtn').addEventListener('click', closeAllergyModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeAllergyModal();
-            });
-
-            document.getElementById('clearAllergyBtn').addEventListener('click', () => {
-                tempModalAllergies.clear();
-                renderModalCheckboxes();
-            });
-
+            document.getElementById('clearAllergyBtn').addEventListener('click', () => { tempModalAllergies.clear(); renderModalCheckboxes(); });
             document.getElementById('saveAllergyBtn').addEventListener('click', () => {
                 myAllergies = new Set(tempModalAllergies);
-                try {
-                    localStorage.setItem('hs_meal_my_allergies', JSON.stringify(Array.from(myAllergies)));
-                } catch (e) {}
-                updateMyAllergyUI();
-                renderMealDisplay();
-                closeAllergyModal();
-                showToast(
-                    myAllergies.size > 0
-                        ? `내 알레르기 ${myAllergies.size}개 항목이 적용되었습니다.`
-                        : '알레르기 필터가 해제되었습니다.'
-                );
+                try { localStorage.setItem('hs_meal_my_allergies', JSON.stringify(Array.from(myAllergies))); } catch (e) {}
+                updateMyAllergyUI(); renderMealCards(currentMealsList); closeModal(allergyModal);
+                showToast(myAllergies.size > 0 ? `내 알레르기 ${myAllergies.size}개를 적용했어요.` : '알레르기 필터를 해제했어요.', '🛡️');
             });
         });
     </script>
